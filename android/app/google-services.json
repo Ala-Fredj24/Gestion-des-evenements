@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "934750462910",
+    "project_id": "devmob-events",
+    "storage_bucket": "devmob-events.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:934750462910:android:940ed79757507351e80fef",
+        "android_client_info": {
+          "package_name": "com.example.devmob_developpement"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNh5MseQdtq22uZH2lIR6GDYYe4MU3h2s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
