@@ -6,6 +6,7 @@ class CustomButton extends StatelessWidget {
   final IconData? icon;
   final bool isLoading;
   final bool outlined;
+  final bool fullWidth;
 
   const CustomButton({
     super.key,
@@ -14,6 +15,7 @@ class CustomButton extends StatelessWidget {
     this.icon,
     this.isLoading = false,
     this.outlined = false,
+    this.fullWidth = true,
   });
 
   @override
@@ -27,19 +29,22 @@ class CustomButton extends StatelessWidget {
       ),
     );
 
-    final content = isLoading
-        ? spinner
-        : Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 20),
-                const SizedBox(width: 8),
+    final content = SizedBox(
+      width: fullWidth ? double.infinity : null,
+      child: isLoading
+          ? Center(child: spinner)
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 20),
+                  const SizedBox(width: 8),
+                ],
+                Flexible(child: Text(label, textAlign: TextAlign.center)),
               ],
-              Flexible(child: Text(label, textAlign: TextAlign.center)),
-            ],
-          );
+            ),
+    );
 
     if (outlined) {
       return OutlinedButton(

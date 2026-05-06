@@ -11,13 +11,6 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final date =
-        '${event.dateTime.day.toString().padLeft(2, '0')}/${event.dateTime.month.toString().padLeft(2, '0')}/${event.dateTime.year}';
-    final price = event.isFree
-        ? 'Gratuit'
-        : '${event.price!.toStringAsFixed(2)} DT';
-    final isFull = event.seatsAvailable <= 0;
-
     return Card(
       child: InkWell(
         onTap: onTap,
@@ -40,8 +33,8 @@ class EventCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   _Badge(
-                    label: isFull ? 'Complet' : 'Disponible',
-                    color: isFull ? AppTheme.error : AppTheme.primary,
+                    label: event.status,
+                    color: event.canReserve ? AppTheme.primary : AppTheme.error,
                   ),
                 ],
               ),
@@ -54,16 +47,16 @@ class EventCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              _InfoRow(icon: Icons.calendar_today, label: date),
+              _InfoRow(icon: Icons.calendar_today, label: event.dateLabel),
               const SizedBox(height: 6),
-              _InfoRow(icon: Icons.place, label: event.address),
+              _InfoRow(icon: Icons.place, label: event.locationLabel),
+              const SizedBox(height: 6),
+              _InfoRow(icon: Icons.event_seat, label: event.seatsLabel),
               const SizedBox(height: 6),
               _InfoRow(
-                icon: Icons.event_seat,
-                label: '${event.seatsAvailable}/${event.seatsTotal} places',
+                icon: Icons.confirmation_number,
+                label: event.priceLabel,
               ),
-              const SizedBox(height: 6),
-              _InfoRow(icon: Icons.confirmation_number, label: price),
             ],
           ),
         ),

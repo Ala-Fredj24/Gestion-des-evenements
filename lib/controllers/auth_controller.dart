@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../models/user_model.dart';
+
 class AuthController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -26,6 +28,7 @@ class AuthController {
     required String email,
     required String password,
     required String role,
+    String displayName = '',
   }) async {
     try {
       final cred = await _auth.createUserWithEmailAndPassword(
@@ -33,9 +36,15 @@ class AuthController {
         password: password.trim(),
       );
 
-      await _firestore.collection('users').doc(cred.user!.uid).set({
-        'email': email.trim(),
-        'role': role,
+      final userProfile = UserModel(
+        uid: cred.user!.uid,
+        email: email.trim(),
+        displayName: displayName.trim(),
+        role: role,
+      );
+
+      await _firestore.collection('users').doc(userProfile.uid).set({
+        ...userProfile.toMap(),
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -43,6 +52,16 @@ class AuthController {
     } on FirebaseAuthException catch (e) {
       return getErrorMessage(e);
     }
+  }
+
+  Future<UserModel?> getUserProfile(String uid) async {
+    final doc = await _firestore.collection('users').doc(uid).get();
+
+    if (!doc.exists || doc.data() == null) {
+      return null;
+    }
+
+    return UserModel.fromMap(doc.data()!, doc.id);
   }
 
   Future<void> logout() async {

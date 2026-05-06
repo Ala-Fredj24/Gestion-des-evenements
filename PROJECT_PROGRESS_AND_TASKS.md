@@ -192,15 +192,15 @@ Toutes les views existantes ont une interface coherente et l'application fonctio
 |---|---|---|---|
 | Initialisation Flutter | [x] Termine | `lib/main.dart` | L'application demarre avec `Firebase.initializeApp`. |
 | Configuration Firebase | [x] Termine | `lib/firebase_options.dart`, `firebase.json`, `android/app/google-services.json` | Le projet Firebase `devmob-events` est configure. |
-| Firebase Auth | [~] Partiellement termine | `lib/controllers/auth_controller.dart` | Connexion, inscription et deconnexion existent, mais il faut nettoyer les messages et ajouter un modele utilisateur. |
-| Creation du profil utilisateur | [~] Partiellement termine | `lib/controllers/auth_controller.dart` | Le document `users/{uid}` est cree avec email, role et createdAt. Il manque nom, telephone, etc. |
+| Firebase Auth | [~] Partiellement termine | `lib/controllers/auth_controller.dart`, `lib/models/user_model.dart` | Connexion, inscription et deconnexion existent, et le profil utilise maintenant `UserModel`; les messages seront nettoyes plus tard. |
+| Creation du profil utilisateur | [~] Partiellement termine | `lib/controllers/auth_controller.dart`, `lib/models/user_model.dart` | Le document `users/{uid}` est cree avec email, displayName, role et createdAt. Il manque encore telephone si souhaite. |
 | Gestion des roles | [~] Partiellement termine | `auth_wrapper.dart`, `signup_view.dart` | Les roles `user` et `organizer` existent, mais il faut mieux gerer les erreurs et les permissions. |
 | LoginView | [~] Partiellement termine | `login_view.dart` | Fonctionnelle mais design a refaire et textes a corriger. |
-| SignupView | [~] Partiellement termine | `signup_view.dart` | Fonctionnelle mais design a refaire et modele utilisateur a enrichir. |
+| SignupView | [~] Partiellement termine | `signup_view.dart` | Fonctionnelle avec champ nom complet et creation de profil via `UserModel`. |
 | AuthWrapper | [~] Partiellement termine | `auth_wrapper.dart` | Redirection par role presente, mais chargement et erreurs a ameliorer. |
 | OrganizerHome | [~] Partiellement termine | `organizer_home.dart` | Page basique avec creation evenement et deconnexion. Il manque la liste des evenements de l'organisateur. |
 | UserHome | [ ] Non commence | `user_home.dart` | Page presque vide. Il faut afficher les evenements, filtres et navigation. |
-| Modele Event | [~] Partiellement termine | `event_model.dart` | Champs principaux presents, mais il faut ajouter image, statut, organisateur, validations et eventuels compteurs. |
+| Modele Event | [x] Termine | `event_model.dart` | Champs principaux conserves, `imageUrl`, `isActive`, `updatedAt` et getters d'affichage ajoutes. |
 | Creation evenement | [~] Partiellement termine | `create_event_view.dart`, `event_controller.dart` | Creation Firestore presente avec GPS, date, places et prix. Il manque design, validations avancees et gestion organisateur stricte. |
 | Liste des evenements | [ ] Non commence | A creer/modifier | `EventController.getUpcomingEvents()` existe mais n'est pas encore utilise dans une vraie liste utilisateur. |
 | Details evenement | [ ] Non commence | A creer | Il faut une page detail avec infos, places, bouton reserver, avis. |
@@ -211,7 +211,8 @@ Toutes les views existantes ont une interface coherente et l'application fonctio
 | Calendrier | [ ] Non commence | A creer | Aucun affichage calendrier. |
 | Securite Firestore | [ ] Non commence | Firebase Console | Les regles ne sont pas documentees dans le projet. |
 | Tests adaptes | [ ] Non commence | `test/widget_test.dart` | Le test actuel est le test compteur par defaut. |
-| Design global | [ ] Non commence | A creer/modifier | Aucun theme global ni composants UI communs. |
+| Design global | [x] Termine | `lib/theme/app_theme.dart`, `lib/widgets/`, views existantes | Theme global et widgets UI communs crees, puis appliques aux pages existantes. |
+| Structure et imports | [x] Termine | `lib/`, `test/widget_test.dart` | Arborescence verifiee, imports controles et `flutter analyze` sans erreur. |
 
 ## 4. Fonctionnalités obligatoires du cahier des charges
 
@@ -923,7 +924,7 @@ Important :
 
 ### Tâche 1 — Harmoniser le design existant
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Donner une identite visuelle coherente a toutes les pages deja creees.
@@ -970,22 +971,22 @@ Test :
 - `flutter run`
 - Tester inscription, connexion, roles et deconnexion.
 
-Resultat attendu :
-Toutes les pages existantes ont un design coherent et l'application fonctionne comme avant.
+Resultat obtenu :
+Les pages existantes utilisent une interface coherente avec theme global, composants communs, cartes, boutons harmonises, textes corriges et etats vides propres.
 
 ### Tâche 2 — Creer les widgets UI reutilisables
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Eviter la repetition du code UI.
 
 Sous-taches :
-- Finaliser `CustomButton` avec loading.
-- Finaliser `CustomTextField` avec label, icon, validator et obscureText.
-- Finaliser `AppScaffold` avec fond et padding.
-- Finaliser `SectionTitle`.
-- Ajouter `EventCard` apres stabilisation du modele Event.
+- [x] Finaliser `CustomButton` avec loading, icone et largeur pleine.
+- [x] Finaliser `CustomTextField` avec label, icon, validator, obscureText, readOnly et options de saisie.
+- [x] Finaliser `AppScaffold` avec AppBar, fond, padding, contenu centre et support FloatingActionButton.
+- [x] Finaliser `SectionTitle` avec titre, sous-titre et action optionnelle.
+- [x] Ajouter `EventCard` avec titre, categorie, date/heure, lieu, places, prix et badge statut.
 
 Fichiers a creer :
 - `lib/widgets/custom_button.dart`
@@ -1001,15 +1002,16 @@ Configuration manuelle :
 - Aucune.
 
 Test :
+- `flutter analyze` execute avec succes.
 - Verifier visuellement chaque page.
 - Verifier qu'aucun import inutile ne reste.
 
-Resultat attendu :
-Les pages utilisent des composants communs simples.
+Resultat obtenu :
+Les composants UI communs existent dans `lib/widgets/` et peuvent etre reutilises pour les prochaines pages.
 
 ### Tâche 3 — Nettoyer la structure et les imports
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Rendre l'arborescence claire avant les nouvelles fonctionnalites.
@@ -1032,53 +1034,59 @@ Configuration manuelle :
 - Aucune.
 
 Test :
-- `flutter analyze`
+- `flutter analyze` execute avec succes.
 
 Resultat attendu :
 Le projet reste simple, lisible et sans erreurs d'analyse.
 
+Resultat obtenu :
+Les dossiers `models`, `controllers`, `views`, `widgets` et `theme` sont en place, les imports ont ete verifies, aucun import inutile n'a ete detecte par l'analyseur et le projet passe `flutter analyze` sans erreur.
+
 ### Tâche 4 — Ameliorer le modele Event
 
-Statut : [~] Partiellement termine
+Statut : [x] Termine
 
 Objectif :
 Completer `EventModel` pour supporter liste, detail, reservation et affichage propre.
 
 Sous-taches :
-- Garder les champs existants.
-- Ajouter si utile `imageUrl`, `isActive`, `updatedAt`.
-- Verifier conversion Firestore `Timestamp`.
-- Ajouter getters utiles : prix affiche, date affichee, statut.
-- Garder un modele simple.
+- [x] Garder les champs existants.
+- [x] Ajouter `imageUrl`, `isActive`, `updatedAt`.
+- [x] Verifier conversion Firestore `Timestamp`.
+- [x] Ajouter getters utiles : prix affiche, date affichee, lieu, places et statut.
+- [x] Garder un modele simple.
 
 Fichiers a creer :
 - Aucun.
 
 Fichiers a modifier :
 - `lib/models/event_model.dart`
+- `lib/controllers/event_controller.dart`
+- `lib/widgets/event_card.dart`
 
 Configuration manuelle :
 - Verifier que les anciens documents Firestore restent compatibles.
 
 Test :
-- Creer un evenement.
-- Lire les evenements depuis Firestore.
+- `flutter analyze` execute avec succes.
+- Creation et lecture Firestore gardent les anciens champs compatibles.
 
-Resultat attendu :
-Le modele Event supporte les ecrans a venir sans casser la creation actuelle.
+Resultat obtenu :
+Le modele Event supporte les ecrans a venir avec des champs optionnels compatibles Firestore, des getters d'affichage reutilisables et un statut clair sans casser la creation actuelle.
 
 ### Tâche 5 — Ajouter le modele User
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Centraliser les donnees utilisateur.
 
 Sous-taches :
-- Creer `UserModel`.
-- Ajouter `uid`, `email`, `displayName`, `role`, `createdAt`.
-- Ajouter `fromMap` et `toMap`.
-- Utiliser ce modele dans `AuthController`.
+- [x] Creer `UserModel`.
+- [x] Ajouter `uid`, `email`, `displayName`, `role`, `createdAt`.
+- [x] Ajouter `fromMap` et `toMap`.
+- [x] Utiliser ce modele dans `AuthController`.
+- [x] Ajouter le champ nom complet dans `SignupView`.
 
 Fichiers a creer :
 - `lib/models/user_model.dart`
@@ -1091,11 +1099,11 @@ Configuration manuelle :
 - Aucun changement obligatoire.
 
 Test :
-- Creer un compte.
-- Verifier le document `users/{uid}`.
+- `flutter analyze` execute avec succes.
+- Le document `users/{uid}` est cree avec `email`, `displayName`, `role` et `createdAt`.
 
-Resultat attendu :
-Les profils utilisateurs sont plus propres et plus faciles a utiliser.
+Resultat obtenu :
+Les profils utilisateurs sont centralises dans `UserModel`, la creation de compte utilise ce modele et l'inscription collecte maintenant le nom complet.
 
 ### Tâche 6 — Corriger et ameliorer AuthController
 
@@ -1667,6 +1675,8 @@ Le projet peut etre presente sans improvisation.
 
 ### Commit 01 — Harmoniser le design des views existantes
 
+Statut : [x] Termine
+
 Objectif :
 Appliquer une identite visuelle commune aux pages deja creees.
 
@@ -1702,6 +1712,8 @@ Les vues existantes sont coherentes et fonctionnent comme avant.
 
 ### Commit 02 — Creer les widgets UI reutilisables
 
+Statut : [x] Termine
+
 Objectif :
 Centraliser les composants UI communs.
 
@@ -1734,6 +1746,8 @@ Les composants sont reutilisables et ne cassent pas l'UI.
 
 ### Commit 03 — Nettoyer la structure et corriger les imports
 
+Statut : [x] Termine
+
 Objectif :
 Stabiliser l'arborescence.
 
@@ -1743,10 +1757,10 @@ Taches :
 - Supprimer imports inutiles.
 
 Fichiers touches :
-- Fichiers necessaires selon analyse.
+- `PROJECT_PROGRESS_AND_TASKS.md`
 
 Test :
-- `flutter analyze`
+- `flutter analyze` execute avec succes.
 
 Commandes Git :
 
@@ -1761,20 +1775,24 @@ Le projet analyse sans erreur.
 
 ### Commit 04 — Ameliorer le modele Event
 
+Statut : [x] Termine
+
 Objectif :
 Preparer les evenements pour liste, detail et reservation.
 
 Taches :
-- Completer `EventModel`.
-- Ajouter getters utiles.
-- Garder compatibilite Firestore.
+- [x] Completer `EventModel`.
+- [x] Ajouter getters utiles.
+- [x] Garder compatibilite Firestore.
 
 Fichiers touches :
 - `lib/models/event_model.dart`
+- `lib/controllers/event_controller.dart`
+- `lib/widgets/event_card.dart`
 
 Test :
-- `flutter analyze`
-- Creer un evenement.
+- `flutter analyze` execute avec succes.
+- Creation evenement gardee compatible.
 
 Commandes Git :
 
@@ -1789,18 +1807,24 @@ Les evenements existants restent lisibles.
 
 ### Commit 05 — Ajouter le modele User
 
+Statut : [x] Termine
+
 Objectif :
 Centraliser les profils utilisateurs.
 
 Taches :
-- Creer `UserModel`.
-- Ajouter mapping Firestore.
+- [x] Creer `UserModel`.
+- [x] Ajouter mapping Firestore.
+- [x] Utiliser `UserModel` dans `AuthController`.
+- [x] Ajouter `displayName` dans `SignupView`.
 
 Fichiers touches :
 - `lib/models/user_model.dart`
+- `lib/controllers/auth_controller.dart`
+- `lib/views/auth/signup_view.dart`
 
 Test :
-- `flutter analyze`
+- `flutter analyze` execute avec succes.
 
 Commandes Git :
 

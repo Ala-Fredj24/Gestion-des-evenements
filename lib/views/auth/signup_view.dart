@@ -15,6 +15,7 @@ class SignupView extends StatefulWidget {
 
 class _SignupViewState extends State<SignupView> {
   final _formKey = GlobalKey<FormState>();
+  final displayNameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmController = TextEditingController();
@@ -24,6 +25,7 @@ class _SignupViewState extends State<SignupView> {
 
   @override
   void dispose() {
+    displayNameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmController.dispose();
@@ -39,6 +41,7 @@ class _SignupViewState extends State<SignupView> {
       email: emailController.text,
       password: passwordController.text,
       role: role,
+      displayName: displayNameController.text,
     );
 
     if (!mounted) return;
@@ -91,6 +94,20 @@ class _SignupViewState extends State<SignupView> {
                       ],
                       onChanged: (v) {
                         if (v != null) setState(() => role = v);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    CustomTextField(
+                      controller: displayNameController,
+                      keyboardType: TextInputType.name,
+                      label: 'Nom complet',
+                      icon: Icons.person_outline,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return 'Entrez votre nom';
+                        }
+                        if (v.trim().length < 2) return 'Nom trop court';
+                        return null;
                       },
                     ),
                     const SizedBox(height: 12),

@@ -13,6 +13,7 @@ class EventController {
       final docRef = await _eventsRef.add({
         ...event.toMap(),
         'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
 
       return docRef.id;
@@ -27,7 +28,7 @@ class EventController {
 
       return snapshot.docs
           .map((doc) => EventModel.fromMap(doc.data(), doc.id))
-          .where((event) => !event.dateTime.isBefore(now))
+          .where((event) => event.isActive && !event.dateTime.isBefore(now))
           .toList();
     });
   }
