@@ -1,0 +1,60 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
+# Android / Gradle
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
+
+# iOS / macOS
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Pods/
+ios/.symlinks/
+ios/Runner.xcworkspace/
+ios/Flutter/App.framework
+
+macos/Flutter/ephemeral/
+macos/Pods/
+macos/.symlinks/
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+# Linux / Windows generated files
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+
+# IDE / editors
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Generated coverage
+coverage/
+
+# Firebase / generated config caches
+firebase-debug.log
+firestore-debug.log
+
+# Keep source files
+!lib/
+!pubspec.yaml
+!pubspec.lock

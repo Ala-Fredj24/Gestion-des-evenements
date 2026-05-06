@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../controllers/auth_controller.dart';
+import '../../widgets/app_scaffold.dart';
+import '../../widgets/custom_button.dart';
 import 'login_view.dart';
 import '../organizer/organizer_home.dart';
 import '../user/user_home.dart';
@@ -18,8 +20,10 @@ class AuthWrapper extends StatelessWidget {
       stream: authController.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+          return const AppScaffold(
+            title: 'DEVMOB',
+            centerContent: true,
+            child: CircularProgressIndicator(),
           );
         }
 
@@ -34,16 +38,49 @@ class AuthWrapper extends StatelessWidget {
           future: usersRef.doc(user.uid).get(),
           builder: (context, userSnap) {
             if (userSnap.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
+              return const AppScaffold(
+                title: 'DEVMOB',
+                centerContent: true,
+                child: CircularProgressIndicator(),
               );
             }
 
             if (!userSnap.hasData ||
                 userSnap.data == null ||
                 !userSnap.data!.exists) {
-              return const Scaffold(
-                body: Center(child: Text("Profil utilisateur introuvable.")),
+              return AppScaffold(
+                title: 'Profil introuvable',
+                centerContent: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.person_off_outlined,
+                      size: 56,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Profil utilisateur introuvable.',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Deconnectez-vous puis reconnectez-vous, ou creez un nouveau compte.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    CustomButton(
+                      label: 'Deconnexion',
+                      icon: Icons.logout,
+                      onPressed: () => authController.logout(),
+                    ),
+                  ],
+                ),
               );
             }
 

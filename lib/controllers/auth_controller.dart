@@ -25,14 +25,14 @@ class AuthController {
   Future<String?> signUp({
     required String email,
     required String password,
-    required String role, // "organizer" or "user"
+    required String role,
   }) async {
     try {
       final cred = await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),
       );
-      // Same idea as APCPedagogie: save role/profile in Firestore after signup. :contentReference[oaicite:5]{index=5}
+
       await _firestore.collection('users').doc(cred.user!.uid).set({
         'email': email.trim(),
         'role': role,
@@ -51,20 +51,20 @@ class AuthController {
 
   String getErrorMessage(FirebaseAuthException e) {
     switch (e.code) {
-      case "user-not-found":
-        return "Aucun utilisateur trouvé avec cet email.";
-      case "wrong-password":
-        return "Mot de passe incorrect.";
-      case "invalid-email":
+      case 'user-not-found':
+        return 'Aucun utilisateur trouve avec cet email.';
+      case 'wrong-password':
+        return 'Mot de passe incorrect.';
+      case 'invalid-email':
         return "L'email n'est pas valide.";
-      case "email-already-in-use":
-        return "Cet email est déjà utilisé.";
-      case "weak-password":
-        return "Le mot de passe est trop faible.";
-      case "user-disabled":
-        return "Ce compte est désactivé.";
+      case 'email-already-in-use':
+        return 'Cet email est deja utilise.';
+      case 'weak-password':
+        return 'Le mot de passe est trop faible.';
+      case 'user-disabled':
+        return 'Ce compte est desactive.';
       default:
-        return "Erreur : ${e.message}";
+        return 'Erreur : ${e.message}';
     }
   }
 }

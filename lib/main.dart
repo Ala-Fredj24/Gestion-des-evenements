@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'theme/app_theme.dart';
 import 'views/auth/auth_wrapper.dart';
 
 void main() async {
@@ -16,6 +17,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'DEVMOB',
+      theme: AppTheme.light,
       home: const AuthWrapper(),
     );
   }

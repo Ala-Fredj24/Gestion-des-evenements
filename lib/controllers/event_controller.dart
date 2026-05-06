@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../models/event_model.dart';
 
 class EventController {
@@ -16,7 +17,7 @@ class EventController {
 
       return docRef.id;
     } catch (e) {
-      throw Exception('Erreur lors de la création de l’événement : $e');
+      throw Exception('Erreur lors de la creation de l evenement : $e');
     }
   }
 
@@ -53,7 +54,7 @@ class EventController {
 
       return EventModel.fromMap(doc.data()!, doc.id);
     } catch (e) {
-      throw Exception('Erreur lors de la récupération de l’événement : $e');
+      throw Exception('Erreur lors de la recuperation de l evenement : $e');
     }
   }
 }
