@@ -20,13 +20,13 @@ class OrganizerHome extends StatelessWidget {
     final displayName = firebaseUser?.displayName?.trim();
 
     return AppScaffold(
-      title: 'Espace organisateur',
+      title: displayName != null && displayName.isNotEmpty
+          ? 'Bienvenue $displayName'
+          : 'Bienvenue',
       child: ListView(
         children: [
           SectionTitle(
-            title: displayName != null && displayName.isNotEmpty
-                ? 'Bienvenue $displayName'
-                : 'Bienvenue',
+            title: 'Espace organisateur',
             subtitle:
                 'Creez vos evenements et suivez vos publications depuis cet espace.',
           ),

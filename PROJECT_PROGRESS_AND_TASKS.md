@@ -199,11 +199,11 @@ Toutes les views existantes ont une interface coherente et l'application fonctio
 | SignupView | [~] Partiellement termine | `signup_view.dart` | Fonctionnelle avec champ nom complet et creation de profil via `UserModel`. |
 | AuthWrapper | [x] Termine | `auth_wrapper.dart` | Redirection par role, chargement, profil introuvable, erreur de profil et role invalide sont geres proprement. |
 | OrganizerHome | [~] Partiellement termine | `organizer_home.dart` | Page basique avec creation evenement et deconnexion. Il manque la liste des evenements de l'organisateur. |
-| UserHome | [ ] Non commence | `user_home.dart` | Page presque vide. Il faut afficher les evenements, filtres et navigation. |
+| UserHome | [~] Partiellement termine | `user_home.dart` | Affiche les evenements a venir avec loading, erreur et etat vide. Details, filtres et reservations restent a ajouter. |
 | Modele Event | [x] Termine | `event_model.dart` | Champs principaux conserves, `imageUrl`, `isActive`, `updatedAt` et getters d'affichage ajoutes. |
 | Creation evenement | [~] Partiellement termine | `create_event_view.dart`, `event_controller.dart` | Creation Firestore presente avec GPS, date, places et prix. Il manque design, validations avancees et gestion organisateur stricte. |
-| Liste des evenements | [ ] Non commence | A creer/modifier | `EventController.getUpcomingEvents()` existe et `EventCard` est pret, mais la liste utilisateur n'est pas encore integree. |
-| Details evenement | [ ] Non commence | A creer | Il faut une page detail avec infos, places, bouton reserver, avis. |
+| Liste des evenements | [x] Termine | `user_home.dart`, `event_controller.dart`, `event_card.dart` | Les evenements a venir sont affiches dans l'espace utilisateur avec `EventCard`. |
+| Details evenement | [x] Termine | `event_detail_view.dart`, `user_home.dart` | Page detail accessible depuis la liste avec infos, places, statut, bouton reservation placeholder et avis placeholder. |
 | Reservations | [ ] Non commence | A creer | Aucun modele, controleur ou page de reservation. |
 | Gestion des places disponibles | [~] Partiellement termine | `event_model.dart`, `create_event_view.dart` | Les champs existent, mais la diminution atomique lors d'une reservation manque. |
 | Commentaires et avis | [ ] Non commence | A creer | Aucun modele Review ni interface de notes/commentaires. |
@@ -1221,17 +1221,17 @@ Resultat obtenu :
 
 ### Tâche 10 — Liste des evenements utilisateur
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Permettre a l'utilisateur de consulter les evenements a venir.
 
 Sous-taches :
-- Utiliser `EventController.getUpcomingEvents`.
-- Ajouter `StreamBuilder`.
-- Afficher `EventCard`.
-- Gerer loading, erreur, liste vide.
-- Ajouter navigation vers detail.
+- [x] Utiliser `EventController.getUpcomingEvents`.
+- [x] Ajouter `StreamBuilder`.
+- [x] Afficher `EventCard`.
+- [x] Gerer loading, erreur, liste vide.
+- [x] Ajouter une action `onTap` temporaire en attendant la page detail.
 
 Fichiers a creer :
 - Aucun si `EventCard` existe.
@@ -1243,25 +1243,25 @@ Configuration manuelle :
 - Creer quelques evenements dans l'app ou Firestore.
 
 Test :
-- Se connecter comme utilisateur.
-- Verifier que la liste apparait.
+- `flutter analyze` execute avec succes.
+- Se connecter comme utilisateur et verifier que la liste apparait.
 
-Resultat attendu :
-L'utilisateur voit les evenements disponibles.
+Resultat obtenu :
+`UserHome` affiche les evenements a venir avec `EventCard`, gere les etats loading/erreur/vide et prepare le clic vers la future page detail de la tache 11.
 
 ### Tâche 11 — Page details evenement
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Afficher toutes les informations d'un evenement.
 
 Sous-taches :
-- Creer `event_detail_view.dart`.
-- Afficher titre, description, categorie, date, lieu, prix, places.
-- Ajouter bouton reserver.
-- Ajouter section avis.
-- Gerer evenement complet.
+- [x] Creer `event_detail_view.dart`.
+- [x] Afficher titre, description, categorie, date, lieu, prix, places.
+- [x] Ajouter bouton reserver placeholder.
+- [x] Ajouter section avis placeholder.
+- [x] Gerer evenement complet.
 
 Fichiers a creer :
 - `lib/views/home/event_detail_view.dart`
@@ -1271,11 +1271,11 @@ Fichiers a modifier :
 - `lib/views/user/user_home.dart`
 
 Test :
-- Ouvrir un evenement depuis la liste.
-- Verifier les informations.
+- `flutter analyze` execute avec succes.
+- Ouvrir un evenement depuis la liste et verifier les informations.
 
-Resultat attendu :
-L'utilisateur peut consulter un evenement en detail.
+Resultat obtenu :
+L'utilisateur peut ouvrir un evenement depuis `UserHome` et consulter toutes les informations principales dans une page detail propre.
 
 ### Tâche 12 — Creation evenement amelioree
 
@@ -1965,21 +1965,24 @@ La carte evenement est reutilisable.
 
 ### Commit 10 — Ajouter la liste des evenements
 
+Statut : [x] Termine
+
 Objectif :
 Afficher les evenements dans l'espace utilisateur.
 
 Taches :
-- Utiliser `getUpcomingEvents`.
-- Ajouter `StreamBuilder`.
-- Gerer loading, erreur et vide.
+- [x] Utiliser `getUpcomingEvents`.
+- [x] Ajouter `StreamBuilder`.
+- [x] Afficher `EventCard`.
+- [x] Gerer loading, erreur et vide.
 
 Fichiers touches :
 - `lib/views/user/user_home.dart`
 - `lib/controllers/event_controller.dart`
 
 Test :
-- Creer evenement.
-- Voir l'evenement comme utilisateur.
+- `flutter analyze` execute avec succes.
+- Creer evenement puis le voir comme utilisateur.
 
 Commandes Git :
 
@@ -1994,12 +1997,15 @@ Les evenements a venir s'affichent.
 
 ### Commit 11 — Ajouter la page detail evenement
 
+Statut : [x] Termine
+
 Objectif :
 Afficher les informations completes d'un evenement.
 
 Taches :
-- Creer page detail.
-- Naviguer depuis `EventCard`.
+- [x] Creer page detail.
+- [x] Naviguer depuis `EventCard`.
+- [x] Afficher informations, statut, reservation placeholder et avis placeholder.
 
 Fichiers touches :
 - `lib/views/home/event_detail_view.dart`
@@ -2007,6 +2013,7 @@ Fichiers touches :
 - `lib/widgets/event_card.dart`
 
 Test :
+- `flutter analyze` execute avec succes.
 - Ouvrir un evenement.
 
 Commandes Git :

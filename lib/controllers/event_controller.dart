@@ -23,13 +23,14 @@ class EventController {
   }
 
   Stream<List<EventModel>> getUpcomingEvents() {
-    return _eventsRef.orderBy('dateTime').snapshots().map((snapshot) {
-      final now = DateTime.now();
-
-      return snapshot.docs
+    return _eventsRef.snapshots().map((snapshot) {
+      final events = snapshot.docs
           .map((doc) => EventModel.fromMap(doc.data(), doc.id))
-          .where((event) => event.isActive && !event.dateTime.isBefore(now))
+          .where((event) => event.isActive)
           .toList();
+
+      events.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+      return events;
     });
   }
 

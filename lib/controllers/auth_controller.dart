@@ -46,6 +46,50 @@ class AuthController {
     }
   }
 
+  Future<String?> restoreProfileForExistingAuthUser({
+    required String email,
+    required String password,
+    required String role,
+    required String displayName,
+  }) async {
+    try {
+      final cred = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
+
+      final cleanedDisplayName = displayName.trim();
+      if (cleanedDisplayName.isNotEmpty) {
+        await cred.user!.updateDisplayName(cleanedDisplayName);
+      }
+      await cred.user!.reload();
+
+      final userProfile = UserModel(
+        uid: cred.user!.uid,
+        email: email.trim(),
+        displayName: cleanedDisplayName,
+        role: normalizeRole(role),
+      );
+
+      await _firestore.collection('users').doc(userProfile.uid).set({
+        ...userProfile.toMap(),
+        'createdAt': FieldValue.serverTimestamp(),
+        'restoredAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      return null;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        return 'Cet email existe deja dans Firebase Authentication. Connectez-vous avec son mot de passe ou supprimez aussi le compte dans Authentication.';
+      }
+      return getErrorMessage(e);
+    } on FirebaseException catch (e) {
+      return getFirebaseErrorMessage(e);
+    } catch (_) {
+      return 'Impossible de restaurer ce profil. Reessayez plus tard.';
+    }
+  }
+
   Future<String?> signUp({
     required String email,
     required String password,
@@ -77,6 +121,14 @@ class AuthController {
 
       return null;
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        return restoreProfileForExistingAuthUser(
+          email: email,
+          password: password,
+          role: role,
+          displayName: displayName,
+        );
+      }
       return getErrorMessage(e);
     } on FirebaseException catch (e) {
       return getFirebaseErrorMessage(e);
