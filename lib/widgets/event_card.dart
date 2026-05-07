@@ -11,6 +11,8 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Card(
       child: InkWell(
         onTap: onTap,
@@ -26,25 +28,31 @@ class EventCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       event.title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  _Badge(
-                    label: event.status,
-                    color: event.canReserve ? AppTheme.primary : AppTheme.error,
-                  ),
+                  if (onTap != null) ...[
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.chevron_right,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ],
                 ],
               ),
               const SizedBox(height: 8),
-              Text(
-                event.category,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.secondary,
-                  fontWeight: FontWeight.w700,
-                ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _Badge(label: event.category, color: AppTheme.secondary),
+                  _Badge(label: event.status, color: _statusColor(event)),
+                  _Badge(label: event.priceLabel, color: AppTheme.accent),
+                ],
               ),
               const SizedBox(height: 12),
               _InfoRow(icon: Icons.calendar_today, label: event.dateLabel),
@@ -52,16 +60,21 @@ class EventCard extends StatelessWidget {
               _InfoRow(icon: Icons.place, label: event.locationLabel),
               const SizedBox(height: 6),
               _InfoRow(icon: Icons.event_seat, label: event.seatsLabel),
-              const SizedBox(height: 6),
-              _InfoRow(
-                icon: Icons.confirmation_number,
-                label: event.priceLabel,
-              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Color _statusColor(EventModel event) {
+    if (!event.isActive) {
+      return AppTheme.textSecondary;
+    }
+    if (event.isFull) {
+      return AppTheme.error;
+    }
+    return AppTheme.primary;
   }
 }
 
@@ -81,6 +94,7 @@ class _InfoRow extends StatelessWidget {
           child: Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -105,6 +119,8 @@ class _Badge extends StatelessWidget {
       ),
       child: Text(
         label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: color,
           fontSize: 12,

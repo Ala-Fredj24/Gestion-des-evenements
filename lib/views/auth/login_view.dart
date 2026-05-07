@@ -49,7 +49,7 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      title: 'DEVMOB',
+      title: 'Gestion des evenements',
       centerContent: true,
       child: SingleChildScrollView(
         child: ConstrainedBox(

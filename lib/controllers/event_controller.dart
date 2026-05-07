@@ -36,12 +36,14 @@ class EventController {
   Stream<List<EventModel>> getOrganizerEvents(String organizerId) {
     return _eventsRef
         .where('organizerId', isEqualTo: organizerId)
-        .orderBy('dateTime', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs
+          final events = snapshot.docs
               .map((doc) => EventModel.fromMap(doc.data(), doc.id))
               .toList();
+
+          events.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+          return events;
         });
   }
 

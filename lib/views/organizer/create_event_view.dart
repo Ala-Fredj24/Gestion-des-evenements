@@ -138,15 +138,6 @@ class _CreateEventViewState extends State<CreateEventView> {
       return;
     }
 
-    if (latitude == null || longitude == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Recuperez la geolocalisation GPS du lieu.'),
-        ),
-      );
-      return;
-    }
-
     setState(() => isLoading = true);
 
     try {
@@ -166,8 +157,8 @@ class _CreateEventViewState extends State<CreateEventView> {
         description: descriptionController.text.trim(),
         dateTime: selectedDateTime!,
         address: addressController.text.trim(),
-        latitude: latitude!,
-        longitude: longitude!,
+        latitude: latitude ?? 0,
+        longitude: longitude ?? 0,
         seatsTotal: seatsTotal,
         seatsAvailable: seatsTotal,
         price: price,
@@ -296,6 +287,12 @@ class _CreateEventViewState extends State<CreateEventView> {
                     ],
                   ),
                 ),
+              ),
+            ] else ...[
+              const SizedBox(height: 8),
+              Text(
+                'GPS optionnel : vous pouvez creer l evenement avec l adresse seulement.',
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
             const SizedBox(height: 12),

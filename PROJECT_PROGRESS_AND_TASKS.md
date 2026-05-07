@@ -192,17 +192,17 @@ Toutes les views existantes ont une interface coherente et l'application fonctio
 |---|---|---|---|
 | Initialisation Flutter | [x] Termine | `lib/main.dart` | L'application demarre avec `Firebase.initializeApp`. |
 | Configuration Firebase | [x] Termine | `lib/firebase_options.dart`, `firebase.json`, `android/app/google-services.json` | Le projet Firebase `devmob-events` est configure. |
-| Firebase Auth | [~] Partiellement termine | `lib/controllers/auth_controller.dart`, `lib/models/user_model.dart` | Connexion, inscription et deconnexion existent, et le profil utilise maintenant `UserModel`; les messages seront nettoyes plus tard. |
+| Firebase Auth | [x] Termine | `lib/controllers/auth_controller.dart`, `lib/models/user_model.dart` | Connexion, inscription, deconnexion, erreurs propres, profil courant et verification de role sont geres. |
 | Creation du profil utilisateur | [~] Partiellement termine | `lib/controllers/auth_controller.dart`, `lib/models/user_model.dart` | Le document `users/{uid}` est cree avec email, displayName, role et createdAt. Il manque encore telephone si souhaite. |
-| Gestion des roles | [~] Partiellement termine | `auth_wrapper.dart`, `signup_view.dart` | Les roles `user` et `organizer` existent, mais il faut mieux gerer les erreurs et les permissions. |
+| Gestion des roles | [x] Termine | `auth_wrapper.dart`, `auth_controller.dart`, `signup_view.dart` | Les roles `user` et `organizer` sont centralises, verifies et rediriges vers le bon espace. |
 | LoginView | [~] Partiellement termine | `login_view.dart` | Fonctionnelle mais design a refaire et textes a corriger. |
 | SignupView | [~] Partiellement termine | `signup_view.dart` | Fonctionnelle avec champ nom complet et creation de profil via `UserModel`. |
-| AuthWrapper | [~] Partiellement termine | `auth_wrapper.dart` | Redirection par role presente, mais chargement et erreurs a ameliorer. |
+| AuthWrapper | [x] Termine | `auth_wrapper.dart` | Redirection par role, chargement, profil introuvable, erreur de profil et role invalide sont geres proprement. |
 | OrganizerHome | [~] Partiellement termine | `organizer_home.dart` | Page basique avec creation evenement et deconnexion. Il manque la liste des evenements de l'organisateur. |
 | UserHome | [ ] Non commence | `user_home.dart` | Page presque vide. Il faut afficher les evenements, filtres et navigation. |
 | Modele Event | [x] Termine | `event_model.dart` | Champs principaux conserves, `imageUrl`, `isActive`, `updatedAt` et getters d'affichage ajoutes. |
 | Creation evenement | [~] Partiellement termine | `create_event_view.dart`, `event_controller.dart` | Creation Firestore presente avec GPS, date, places et prix. Il manque design, validations avancees et gestion organisateur stricte. |
-| Liste des evenements | [ ] Non commence | A creer/modifier | `EventController.getUpcomingEvents()` existe mais n'est pas encore utilise dans une vraie liste utilisateur. |
+| Liste des evenements | [ ] Non commence | A creer/modifier | `EventController.getUpcomingEvents()` existe et `EventCard` est pret, mais la liste utilisateur n'est pas encore integree. |
 | Details evenement | [ ] Non commence | A creer | Il faut une page detail avec infos, places, bouton reserver, avis. |
 | Reservations | [ ] Non commence | A creer | Aucun modele, controleur ou page de reservation. |
 | Gestion des places disponibles | [~] Partiellement termine | `event_model.dart`, `create_event_view.dart` | Les champs existent, mais la diminution atomique lors d'une reservation manque. |
@@ -1107,17 +1107,18 @@ Les profils utilisateurs sont centralises dans `UserModel`, la creation de compt
 
 ### Tâche 6 — Corriger et ameliorer AuthController
 
-Statut : [~] Partiellement termine
+Statut : [x] Termine
 
 Objectif :
 Rendre l'authentification plus propre.
 
 Sous-taches :
-- Corriger les messages accentues.
-- Utiliser `UserModel`.
-- Ajouter une methode pour recuperer le profil courant.
-- Ajouter une methode pour verifier le role.
-- Garder les retours d'erreur simples.
+- [x] Corriger les messages d'erreur principaux.
+- [x] Utiliser `UserModel`.
+- [x] Ajouter une methode pour recuperer le profil courant.
+- [x] Ajouter une methode pour verifier le role.
+- [x] Garder les retours d'erreur simples.
+- [x] Ajouter une gestion plus sure des erreurs Firebase et reseau.
 
 Fichiers a creer :
 - Aucun.
@@ -1129,27 +1130,26 @@ Configuration manuelle :
 - Verifier Email/Password dans Firebase Authentication.
 
 Test :
-- Login valide.
-- Login invalide.
-- Signup utilisateur.
-- Signup organisateur.
+- `flutter analyze` execute avec succes.
+- Login, signup, logout et erreurs Firebase restent couverts par `AuthController`.
 
-Resultat attendu :
-L'authentification est stable et claire.
+Resultat obtenu :
+`AuthController` centralise les roles, cree les profils avec `UserModel`, expose le profil courant, verifie les roles et retourne des messages d'erreur simples pour Auth, Firestore et le reseau.
 
 ### Tâche 7 — Gestion complete des roles
 
-Statut : [~] Partiellement termine
+Statut : [x] Termine
 
 Objectif :
 Assurer une separation claire entre utilisateur et organisateur.
 
 Sous-taches :
-- Centraliser les valeurs `user` et `organizer`.
-- Ameliorer `AuthWrapper`.
-- Ajouter affichage propre pendant le chargement.
-- Ajouter affichage propre si profil introuvable.
-- Prevoir les regles Firestore.
+- [x] Centraliser les valeurs `user` et `organizer`.
+- [x] Ameliorer `AuthWrapper`.
+- [x] Ajouter affichage propre pendant le chargement.
+- [x] Ajouter affichage propre si profil introuvable.
+- [x] Gerer les roles invalides.
+- [x] Prevoir les regles Firestore pour une tache ulterieure.
 
 Fichiers a creer :
 - Aucun obligatoire.
@@ -1162,61 +1162,62 @@ Configuration manuelle :
 - Firestore Rules.
 
 Test :
-- Tester redirection utilisateur.
-- Tester redirection organisateur.
+- `flutter analyze` execute avec succes.
+- Redirection utilisateur et organisateur geree via `UserModel`.
 
-Resultat attendu :
-Chaque role arrive dans son espace.
+Resultat obtenu :
+Les roles sont centralises dans `AuthController`, `AuthWrapper` lit le profil via `UserModel`, refuse les roles invalides et envoie chaque role reconnu vers son espace.
 
 ### Tâche 8 — Ameliorer AuthWrapper
 
-Statut : [~] Partiellement termine
+Statut : [x] Termine
 
 Objectif :
 Eviter les ecrans bruts pendant chargement ou erreur.
 
 Sous-taches :
-- Utiliser `AppScaffold`.
-- Afficher un loader centre propre.
-- Afficher une page d'erreur simple si profil introuvable.
-- Ajouter bouton deconnexion si profil manquant.
+- [x] Utiliser `AppScaffold`.
+- [x] Afficher un loader centre propre.
+- [x] Afficher une page d'erreur simple si profil introuvable.
+- [x] Ajouter bouton deconnexion si profil manquant.
+- [x] Ajouter une page d'erreur simple si le profil ne charge pas.
 
 Fichiers a modifier :
 - `lib/views/auth/auth_wrapper.dart`
 
 Test :
-- Connexion normale.
-- Test avec utilisateur sans document Firestore si possible.
+- `flutter analyze` execute avec succes.
+- Connexion normale, profil manquant, erreur de chargement et role invalide ont maintenant des vues propres.
 
-Resultat attendu :
-L'experience est propre meme en cas de probleme.
+Resultat obtenu :
+`AuthWrapper` n'affiche plus d'ecran brut pendant l'authentification et utilise des etats UI coherents pour chargement, profil manquant, erreur et role invalide.
 
 ### Tâche 9 — Creer EventCard
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Afficher un evenement de facon reutilisable.
 
 Sous-taches :
-- Afficher titre, categorie, date, adresse, places, prix.
-- Ajouter un badge complet/disponible.
-- Ajouter un callback `onTap`.
-- Utiliser le theme global.
+- [x] Afficher titre, categorie, date, adresse, places, prix.
+- [x] Ajouter un badge complet/disponible.
+- [x] Ajouter un callback `onTap`.
+- [x] Utiliser le theme global.
+- [x] Gerer les textes longs et l'affordance de navigation.
 
 Fichiers a creer :
 - `lib/widgets/event_card.dart`
 
 Fichiers a modifier :
-- `lib/views/user/user_home.dart`
-- `lib/views/organizer/organizer_home.dart`
+- Aucun pour cette tache. L'integration dans les listes reste prevue aux taches 10 et 13.
 
 Test :
-- Afficher une carte dans une liste.
-- Verifier responsive sur emulateur.
+- `flutter analyze` execute avec succes.
+- La carte est prete a etre affichee dans les listes utilisateur et organisateur.
 
-Resultat attendu :
-Les listes d'evenements ont une presentation commune.
+Resultat obtenu :
+`EventCard` est reutilisable, affiche les informations essentielles avec badges, limite les textes longs et expose `onTap` pour la navigation future.
 
 ### Tâche 10 — Liste des evenements utilisateur
 
@@ -1839,21 +1840,23 @@ Le modele compile et represente `users/{uid}`.
 
 ### Commit 06 — Corriger AuthController
 
+Statut : [x] Termine
+
 Objectif :
 Nettoyer l'authentification.
 
 Taches :
-- Utiliser `UserModel`.
-- Corriger les erreurs en francais.
-- Ajouter recuperation profil.
+- [x] Utiliser `UserModel`.
+- [x] Corriger les erreurs en francais.
+- [x] Ajouter recuperation profil.
+- [x] Ajouter verification de role.
 
 Fichiers touches :
 - `lib/controllers/auth_controller.dart`
 
 Test :
-- Signup.
-- Login.
-- Logout.
+- `flutter analyze` execute avec succes.
+- Signup, login et logout restent geres par `AuthController`.
 
 Commandes Git :
 
@@ -1868,21 +1871,24 @@ L'authentification fonctionne toujours.
 
 ### Commit 07 — Gerer completement les roles
 
+Statut : [x] Termine
+
 Objectif :
 Stabiliser la redirection utilisateur/organisateur.
 
 Taches :
-- Ameliorer lecture du role.
-- Gerer role manquant.
-- Gerer profil manquant.
+- [x] Ameliorer lecture du role.
+- [x] Gerer role manquant.
+- [x] Gerer profil manquant.
+- [x] Gerer role invalide.
 
 Fichiers touches :
 - `lib/views/auth/auth_wrapper.dart`
 - `lib/controllers/auth_controller.dart`
 
 Test :
-- Connexion utilisateur.
-- Connexion organisateur.
+- `flutter analyze` execute avec succes.
+- Connexion utilisateur et organisateur routees par `AuthWrapper`.
 
 Commandes Git :
 
@@ -1897,19 +1903,23 @@ Chaque role arrive dans le bon espace.
 
 ### Commit 08 — Ameliorer AuthWrapper
 
+Statut : [x] Termine
+
 Objectif :
 Rendre les etats de chargement et erreur propres.
 
 Taches :
-- Loader propre.
-- Message profil introuvable.
-- Bouton deconnexion si besoin.
+- [x] Loader propre.
+- [x] Message profil introuvable.
+- [x] Message erreur de chargement.
+- [x] Message role invalide.
+- [x] Bouton deconnexion si besoin.
 
 Fichiers touches :
 - `lib/views/auth/auth_wrapper.dart`
 
 Test :
-- `flutter run`
+- `flutter analyze` execute avec succes.
 - Tester connexion.
 
 Commandes Git :
@@ -1925,18 +1935,22 @@ Aucun ecran brut pendant l'authentification.
 
 ### Commit 09 — Creer EventCard
 
+Statut : [x] Termine
+
 Objectif :
 Preparer l'affichage des evenements.
 
 Taches :
-- Creer carte evenement.
-- Afficher titre, date, categorie, lieu, places, prix.
+- [x] Creer carte evenement.
+- [x] Afficher titre, date, categorie, lieu, places, prix.
+- [x] Ajouter badges statut, categorie et prix.
+- [x] Ajouter callback `onTap`.
 
 Fichiers touches :
 - `lib/widgets/event_card.dart`
 
 Test :
-- `flutter analyze`
+- `flutter analyze` execute avec succes.
 
 Commandes Git :
 
