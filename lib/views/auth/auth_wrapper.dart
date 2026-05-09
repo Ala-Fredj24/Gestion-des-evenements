@@ -21,7 +21,7 @@ class AuthWrapper extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const AppScaffold(
-            title: 'DEVMOB',
+            title: 'Gestion des evenements',
             centerContent: true,
             child: CircularProgressIndicator(),
           );

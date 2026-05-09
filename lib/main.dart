@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'DEVMOB',
+      title: 'Gestion des evenements',
       theme: AppTheme.light,
       home: const AuthWrapper(),
     );
