@@ -204,7 +204,7 @@ Toutes les views existantes ont une interface coherente et l'application fonctio
 | Creation evenement | [~] Partiellement termine | `create_event_view.dart`, `event_controller.dart` | Creation Firestore presente avec GPS, date, places et prix. Il manque design, validations avancees et gestion organisateur stricte. |
 | Liste des evenements | [x] Termine | `user_home.dart`, `event_controller.dart`, `event_card.dart` | Les evenements a venir sont affiches dans l'espace utilisateur avec `EventCard`. |
 | Details evenement | [x] Termine | `event_detail_view.dart`, `user_home.dart` | Page detail accessible depuis la liste avec infos, places, statut, bouton reservation placeholder et avis placeholder. |
-| Reservations | [ ] Non commence | A creer | Aucun modele, controleur ou page de reservation. |
+| Reservations | [~] Partiellement termine | `reservation_model.dart` | Le modele existe. Il manque encore le controleur, la transaction et la page de reservation. |
 | Gestion des places disponibles | [~] Partiellement termine | `event_model.dart`, `create_event_view.dart` | Les champs existent, mais la diminution atomique lors d'une reservation manque. |
 | Commentaires et avis | [ ] Non commence | A creer | Aucun modele Review ni interface de notes/commentaires. |
 | Filtres | [ ] Non commence | A creer | Aucun filtre categorie/date/lieu/prix. |
@@ -1279,67 +1279,70 @@ L'utilisateur peut ouvrir un evenement depuis `UserHome` et consulter toutes les
 
 ### Tâche 12 — Creation evenement amelioree
 
-Statut : [~] Partiellement termine
+Statut : [x] Termine
 
 Objectif :
 Rendre la creation evenement plus fiable et plus belle.
 
 Sous-taches :
-- Appliquer le design global.
-- Corriger les textes.
-- Ajouter validations plus propres.
-- Ajouter message succes.
-- Verifier GPS.
-- Verifier dates futures uniquement.
+- [x] Appliquer le design global.
+- [x] Corriger les textes.
+- [x] Ajouter validations plus propres.
+- [x] Ajouter message succes.
+- [x] Verifier GPS.
+- [x] Verifier dates futures uniquement.
 
 Fichiers a modifier :
 - `lib/views/organizer/create_event_view.dart`
 - `lib/controllers/event_controller.dart`
 
 Test :
+- `flutter analyze` execute avec succes.
 - Creer un evenement complet.
 - Tester formulaire vide.
 - Tester nombre de places invalide.
 
-Resultat attendu :
-La creation est propre, stable et presentable.
+Resultat obtenu :
+La creation utilise les composants UI communs, valide les champs principaux, gere la date future, le GPS optionnel et affiche un message de succes.
 
 ### Tâche 13 — Mes evenements organisateur
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Afficher les evenements crees par l'organisateur connecte.
 
 Sous-taches :
-- Utiliser `getOrganizerEvents`.
-- Ajouter une liste dans `OrganizerHome`.
-- Afficher `EventCard`.
-- Ajouter etat vide.
+- [x] Utiliser `getOrganizerEvents`.
+- [x] Ajouter une liste dans `OrganizerHome`.
+- [x] Afficher `EventCard`.
+- [x] Ajouter etat vide.
 
 Fichiers a modifier :
 - `lib/views/organizer/organizer_home.dart`
 - `lib/controllers/event_controller.dart`
 
 Test :
+- `flutter analyze` execute avec succes.
 - Creer un evenement.
 - Revenir sur l'espace organisateur.
 - Verifier qu'il apparait.
 
-Resultat attendu :
-L'organisateur voit ses evenements.
+Resultat obtenu :
+L'organisateur voit ses propres evenements dans `OrganizerHome` avec loading, erreur et etat vide propres.
 
 ### Tâche 14 — Ajouter ReservationModel
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Representer une reservation dans le code.
 
 Sous-taches :
-- Creer `ReservationModel`.
-- Ajouter `id`, `userId`, `eventId`, `organizerId`, `quantity`, `status`, `createdAt`.
-- Ajouter `fromMap` et `toMap`.
+- [x] Creer `ReservationModel`.
+- [x] Ajouter `id`, `userId`, `eventId`, `organizerId`, `quantity`, `status`, `createdAt`.
+- [x] Ajouter `fromMap` et `toMap`.
+- [x] Ajouter statuts simples et getters d'affichage.
 
 Fichiers a creer :
 - `lib/models/reservation_model.dart`
@@ -1348,10 +1351,10 @@ Fichiers a modifier :
 - Aucun obligatoire.
 
 Test :
-- Verifier compilation.
+- `flutter analyze` execute avec succes.
 
-Resultat attendu :
-Les reservations ont un modele clair.
+Resultat obtenu :
+Les reservations ont un modele clair compatible Firestore avec mapping, statuts et libelles reutilisables.
 
 ### Tâche 15 — Ajouter ReservationController
 
@@ -2029,13 +2032,15 @@ Le detail evenement est accessible.
 
 ### Commit 12 — Ameliorer la creation evenement
 
+Statut : [x] Termine
+
 Objectif :
 Rendre le formulaire organisateur plus complet.
 
 Taches :
-- Ameliorer validations.
-- Ameliorer messages.
-- Stabiliser GPS et date.
+- [x] Ameliorer validations.
+- [x] Ameliorer messages.
+- [x] Stabiliser GPS et date.
 
 Fichiers touches :
 - `lib/views/organizer/create_event_view.dart`
@@ -2058,12 +2063,14 @@ La creation evenement est claire et fiable.
 
 ### Commit 13 — Ajouter mes evenements organisateur
 
+Statut : [x] Termine
+
 Objectif :
 Afficher les evenements de l'organisateur.
 
 Taches :
-- Utiliser `getOrganizerEvents`.
-- Afficher liste avec `EventCard`.
+- [x] Utiliser `getOrganizerEvents`.
+- [x] Afficher liste avec `EventCard`.
 
 Fichiers touches :
 - `lib/views/organizer/organizer_home.dart`
@@ -2084,11 +2091,13 @@ L'organisateur voit ses propres evenements.
 
 ### Commit 14 — Ajouter le modele Reservation
 
+Statut : [x] Termine
+
 Objectif :
 Representer les reservations.
 
 Taches :
-- Creer `ReservationModel`.
+- [x] Creer `ReservationModel`.
 
 Fichiers touches :
 - `lib/models/reservation_model.dart`
