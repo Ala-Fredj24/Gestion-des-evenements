@@ -68,6 +68,9 @@ class EventModel {
     if (!isActive) {
       return 'Indisponible';
     }
+    if (!isUpcoming) {
+      return 'Passe';
+    }
     if (isFull) {
       return 'Complet';
     }

@@ -204,8 +204,8 @@ Toutes les views existantes ont une interface coherente et l'application fonctio
 | Creation evenement | [~] Partiellement termine | `create_event_view.dart`, `event_controller.dart` | Creation Firestore presente avec GPS, date, places et prix. Il manque design, validations avancees et gestion organisateur stricte. |
 | Liste des evenements | [x] Termine | `user_home.dart`, `event_controller.dart`, `event_card.dart` | Les evenements a venir sont affiches dans l'espace utilisateur avec `EventCard`. |
 | Details evenement | [x] Termine | `event_detail_view.dart`, `user_home.dart` | Page detail accessible depuis la liste avec infos, places, statut, bouton reservation placeholder et avis placeholder. |
-| Reservations | [~] Partiellement termine | `reservation_model.dart` | Le modele existe. Il manque encore le controleur, la transaction et la page de reservation. |
-| Gestion des places disponibles | [~] Partiellement termine | `event_model.dart`, `create_event_view.dart` | Les champs existent, mais la diminution atomique lors d'une reservation manque. |
+| Reservations | [~] Partiellement termine | `reservation_model.dart`, `reservation_controller.dart`, `booking_view.dart` | Reservation possible depuis le detail evenement. Il manque encore la page Mes reservations. |
+| Gestion des places disponibles | [x] Termine | `event_model.dart`, `reservation_controller.dart`, `booking_view.dart` | Les places sont diminuees dans une transaction Firestore lors d'une reservation. |
 | Commentaires et avis | [ ] Non commence | A creer | Aucun modele Review ni interface de notes/commentaires. |
 | Filtres | [ ] Non commence | A creer | Aucun filtre categorie/date/lieu/prix. |
 | Calendrier | [ ] Non commence | A creer | Aucun affichage calendrier. |
@@ -1358,18 +1358,18 @@ Les reservations ont un modele clair compatible Firestore avec mapping, statuts 
 
 ### Tâche 15 — Ajouter ReservationController
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Gerer les reservations avec Firestore.
 
 Sous-taches :
-- Creer `ReservationController`.
-- Ajouter `createReservation`.
-- Utiliser transaction Firestore.
-- Diminuer `seatsAvailable`.
-- Ajouter `getUserReservations`.
-- Refuser si places insuffisantes.
+- [x] Creer `ReservationController`.
+- [x] Ajouter `createReservation`.
+- [x] Utiliser transaction Firestore.
+- [x] Diminuer `seatsAvailable`.
+- [x] Ajouter `getUserReservations`.
+- [x] Refuser si places insuffisantes.
 
 Fichiers a creer :
 - `lib/controllers/reservation_controller.dart`
@@ -1382,26 +1382,27 @@ Configuration manuelle :
 - Verifier regles Firestore.
 
 Test :
+- `flutter analyze` execute avec succes.
 - Reserver.
 - Verifier Firestore.
 - Verifier places disponibles.
 
-Resultat attendu :
-La reservation fonctionne sans incoherence de places.
+Resultat obtenu :
+`ReservationController` cree une reservation et met a jour `seatsAvailable` dans une transaction Firestore, avec validation des places et de l'etat de l'evenement.
 
 ### Tâche 16 — Page reservation
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Permettre a l'utilisateur de choisir le nombre de places.
 
 Sous-taches :
-- Creer `BookingView`.
-- Afficher resume evenement.
-- Ajouter champ quantite.
-- Ajouter bouton confirmer.
-- Afficher erreurs.
+- [x] Creer `BookingView`.
+- [x] Afficher resume evenement.
+- [x] Ajouter champ quantite.
+- [x] Ajouter bouton confirmer.
+- [x] Afficher erreurs.
 
 Fichiers a creer :
 - `lib/views/reservation/booking_view.dart`
@@ -1410,12 +1411,13 @@ Fichiers a modifier :
 - `lib/views/home/event_detail_view.dart`
 
 Test :
+- `flutter analyze` execute avec succes.
 - Reserver 1 place.
 - Reserver plusieurs places.
 - Tester trop de places.
 
-Resultat attendu :
-L'utilisateur peut reserver simplement.
+Resultat obtenu :
+L'utilisateur peut ouvrir la page de reservation depuis le detail evenement, choisir une quantite et confirmer sa reservation.
 
 ### Tâche 17 — Mes reservations
 
@@ -2118,12 +2120,14 @@ Le modele reservation compile.
 
 ### Commit 15 — Ajouter ReservationController
 
+Statut : [x] Termine
+
 Objectif :
 Gerer reservations et places.
 
 Taches :
-- Creer `ReservationController`.
-- Ajouter transaction Firestore.
+- [x] Creer `ReservationController`.
+- [x] Ajouter transaction Firestore.
 
 Fichiers touches :
 - `lib/controllers/reservation_controller.dart`
@@ -2144,12 +2148,14 @@ La reservation diminue les places.
 
 ### Commit 16 — Ajouter la page reservation
 
+Statut : [x] Termine
+
 Objectif :
 Permettre a l'utilisateur de confirmer une reservation.
 
 Taches :
-- Creer `BookingView`.
-- Ajouter bouton depuis detail.
+- [x] Creer `BookingView`.
+- [x] Ajouter bouton depuis detail.
 
 Fichiers touches :
 - `lib/views/reservation/booking_view.dart`

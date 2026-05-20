@@ -5,6 +5,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/section_title.dart';
+import '../reservation/booking_view.dart';
 
 class EventDetailView extends StatelessWidget {
   final EventModel event;
@@ -13,6 +14,8 @@ class EventDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canOpenBooking = event.canReserve && event.id != null;
+
     return AppScaffold(
       title: 'Detail evenement',
       child: ListView(
@@ -78,19 +81,25 @@ class EventDetailView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           CustomButton(
-            label: event.canReserve ? 'Reserver bientot' : event.status,
+            label: canOpenBooking
+                ? 'Reserver'
+                : event.id == null
+                ? 'Reservation impossible'
+                : event.status,
             icon: event.canReserve
                 ? Icons.confirmation_number_outlined
                 : Icons.block_outlined,
-            onPressed: event.canReserve
-                ? () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'La reservation sera ajoutee dans les prochaines taches.',
-                        ),
+            onPressed: canOpenBooking
+                ? () async {
+                    final didBook = await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BookingView(event: event),
                       ),
                     );
+
+                    if (!context.mounted || didBook != true) return;
+                    Navigator.pop(context);
                   }
                 : null,
           ),
