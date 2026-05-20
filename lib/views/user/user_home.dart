@@ -8,15 +8,43 @@ import '../../widgets/app_scaffold.dart';
 import '../../widgets/event_card.dart';
 import '../../widgets/section_title.dart';
 import '../home/event_detail_view.dart';
+import 'calendar_view.dart';
 import 'my_reservations_view.dart';
 
-class UserHome extends StatelessWidget {
+class UserHome extends StatefulWidget {
   const UserHome({super.key});
+
+  @override
+  State<UserHome> createState() => _UserHomeState();
+}
+
+class _UserHomeState extends State<UserHome> {
+  static const String allCategories = 'Toutes';
+  static const String allPrices = 'Tous';
+  static const String freeOnly = 'Gratuits';
+  static const String paidOnly = 'Payants';
+
+  final EventController eventController = EventController();
+
+  String selectedCategory = allCategories;
+  String selectedPrice = allPrices;
+
+  String? get categoryFilter =>
+      selectedCategory == allCategories ? null : selectedCategory;
+
+  bool? get priceFilter {
+    if (selectedPrice == freeOnly) {
+      return true;
+    }
+    if (selectedPrice == paidOnly) {
+      return false;
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
     final authController = AuthController();
-    final eventController = EventController();
     final firebaseUser = authController.user;
 
     return FutureBuilder<UserModel?>(
@@ -33,6 +61,16 @@ class UserHome extends StatelessWidget {
               ? 'Bienvenue $displayName'
               : 'Bienvenue',
           actions: [
+            IconButton(
+              tooltip: 'Calendrier',
+              icon: const Icon(Icons.calendar_month_outlined),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CalendarView()),
+                );
+              },
+            ),
             IconButton(
               tooltip: 'Mes reservations',
               icon: const Icon(Icons.confirmation_number_outlined),
@@ -57,8 +95,30 @@ class UserHome extends StatelessWidget {
                     'Consultez les prochains evenements culturels et sportifs.',
               ),
               const SizedBox(height: 16),
+              _EventFilters(
+                selectedCategory: selectedCategory,
+                selectedPrice: selectedPrice,
+                onCategoryChanged: (value) {
+                  if (value == null) return;
+                  setState(() => selectedCategory = value);
+                },
+                onPriceChanged: (value) {
+                  if (value == null) return;
+                  setState(() => selectedPrice = value);
+                },
+                onReset: () {
+                  setState(() {
+                    selectedCategory = allCategories;
+                    selectedPrice = allPrices;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
               StreamBuilder<List<EventModel>>(
-                stream: eventController.getUpcomingEvents(),
+                stream: eventController.getUpcomingEvents(
+                  category: categoryFilter,
+                  isFree: priceFilter,
+                ),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
@@ -81,10 +141,10 @@ class UserHome extends StatelessWidget {
                   final events = snapshot.data ?? [];
                   if (events.isEmpty) {
                     return const _UserEventState(
-                      icon: Icons.event_available_outlined,
-                      title: 'Aucun evenement disponible',
+                      icon: Icons.filter_alt_off_outlined,
+                      title: 'Aucun evenement trouve',
                       message:
-                          'Les prochains evenements apparaitront ici des qu un organisateur en publie un.',
+                          'Aucun evenement ne correspond aux filtres choisis.',
                     );
                   }
 
@@ -112,6 +172,82 @@ class UserHome extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _EventFilters extends StatelessWidget {
+  final String selectedCategory;
+  final String selectedPrice;
+  final ValueChanged<String?> onCategoryChanged;
+  final ValueChanged<String?> onPriceChanged;
+  final VoidCallback onReset;
+
+  const _EventFilters({
+    required this.selectedCategory,
+    required this.selectedPrice,
+    required this.onCategoryChanged,
+    required this.onPriceChanged,
+    required this.onReset,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.filter_alt_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Filtres',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                TextButton(onPressed: onReset, child: const Text('Reset')),
+              ],
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: selectedCategory,
+              decoration: const InputDecoration(
+                labelText: 'Categorie',
+                prefixIcon: Icon(Icons.category_outlined),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'Toutes', child: Text('Toutes')),
+                DropdownMenuItem(value: 'Culture', child: Text('Culture')),
+                DropdownMenuItem(value: 'Sport', child: Text('Sport')),
+                DropdownMenuItem(value: 'Autre', child: Text('Autre')),
+              ],
+              onChanged: onCategoryChanged,
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: selectedPrice,
+              decoration: const InputDecoration(
+                labelText: 'Prix',
+                prefixIcon: Icon(Icons.payments_outlined),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'Tous', child: Text('Tous')),
+                DropdownMenuItem(value: 'Gratuits', child: Text('Gratuits')),
+                DropdownMenuItem(value: 'Payants', child: Text('Payants')),
+              ],
+              onChanged: onPriceChanged,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

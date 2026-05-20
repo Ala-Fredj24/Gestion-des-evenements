@@ -207,8 +207,8 @@ Toutes les views existantes ont une interface coherente et l'application fonctio
 | Reservations | [x] Termine | `reservation_model.dart`, `reservation_controller.dart`, `booking_view.dart`, `my_reservations_view.dart` | Reservation possible depuis le detail evenement et consultation des reservations utilisateur. |
 | Gestion des places disponibles | [x] Termine | `event_model.dart`, `reservation_controller.dart`, `booking_view.dart`, `event_detail_view.dart`, `event_card.dart` | Les places sont diminuees dans une transaction Firestore et les etats complet/indisponible sont bloques dans l'UI. |
 | Commentaires et avis | [x] Termine | `review_model.dart`, `review_controller.dart`, `event_detail_view.dart` | Les utilisateurs peuvent ajouter une note/commentaire et consulter les avis avec moyenne. |
-| Filtres | [ ] Non commence | A creer | Aucun filtre categorie/date/lieu/prix. |
-| Calendrier | [ ] Non commence | A creer | Aucun affichage calendrier. |
+| Filtres | [x] Termine | `user_home.dart`, `event_controller.dart` | Filtres categorie et gratuit/payant ajoutes dans l'accueil utilisateur. |
+| Calendrier | [x] Termine | `calendar_view.dart`, `user_home.dart`, `event_controller.dart` | Vue calendrier simple avec selection de date et liste des evenements du jour. |
 | Securite Firestore | [ ] Non commence | Firebase Console | Les regles ne sont pas documentees dans le projet. |
 | Tests adaptes | [ ] Non commence | `test/widget_test.dart` | Le test actuel est le test compteur par defaut. |
 | Design global | [x] Termine | `lib/theme/app_theme.dart`, `lib/widgets/`, views existantes | Theme global et widgets UI communs crees, puis appliques aux pages existantes. |
@@ -1528,54 +1528,57 @@ La page detail evenement permet de publier une note de 1 a 5 avec commentaire, a
 
 ### Tâche 21 — Filtres evenements
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Faciliter la recherche d'evenements.
 
 Sous-taches :
-- Ajouter filtre categorie.
-- Ajouter filtre gratuit/payant.
-- Ajouter recherche par titre si temps disponible.
-- Garder l'UI simple.
+- [x] Ajouter filtre categorie.
+- [x] Ajouter filtre gratuit/payant.
+- [ ] Ajouter recherche par titre si temps disponible.
+- [x] Garder l'UI simple.
 
 Fichiers a modifier :
 - `lib/views/user/user_home.dart`
 - `lib/controllers/event_controller.dart`
 
 Test :
+- `flutter analyze` execute avec succes.
 - Creer evenements de categories differentes.
 - Tester les filtres.
 
-Resultat attendu :
-L'utilisateur trouve plus facilement un evenement.
+Resultat obtenu :
+L'utilisateur peut filtrer les evenements a venir par categorie et par gratuit/payant depuis `UserHome`.
 
 ### Tâche 22 — Calendrier evenements
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Afficher les evenements par date.
 
 Sous-taches :
-- Creer vue calendrier simple.
-- Ajouter selection de date.
-- Afficher evenements du jour.
-- Ajouter package calendrier seulement si necessaire.
+- [x] Creer vue calendrier simple.
+- [x] Ajouter selection de date.
+- [x] Afficher evenements du jour.
+- [x] Ajouter package calendrier seulement si necessaire.
 
 Fichiers a creer :
 - `lib/views/user/calendar_view.dart`
 
 Fichiers a modifier :
-- `pubspec.yaml` si package ajoute.
+- Aucun package ajoute.
 - `lib/views/user/user_home.dart`
+- `lib/controllers/event_controller.dart`
 
 Test :
+- `flutter analyze` execute avec succes.
 - Selectionner une date avec evenement.
 - Selectionner une date sans evenement.
 
-Resultat attendu :
-L'utilisateur peut consulter les evenements par date.
+Resultat obtenu :
+L'utilisateur accede au calendrier depuis `UserHome`, selectionne une date et consulte les evenements correspondants.
 
 ### Tâche 23 — Regles de securite Firestore
 
@@ -2299,12 +2302,14 @@ Les avis sont visibles.
 
 ### Commit 21 — Ajouter les filtres evenements
 
+Statut : [x] Termine
+
 Objectif :
 Filtrer les evenements.
 
 Taches :
-- Filtre categorie.
-- Filtre gratuit/payant.
+- [x] Filtre categorie.
+- [x] Filtre gratuit/payant.
 
 Fichiers touches :
 - `lib/views/user/user_home.dart`
@@ -2326,16 +2331,18 @@ La liste se filtre correctement.
 
 ### Commit 22 — Ajouter le calendrier
 
+Statut : [x] Termine
+
 Objectif :
 Consulter les evenements par date.
 
 Taches :
-- Creer vue calendrier ou filtre par date.
+- [x] Creer vue calendrier ou filtre par date.
 
 Fichiers touches :
 - `lib/views/user/calendar_view.dart`
 - `lib/views/user/user_home.dart`
-- `pubspec.yaml` si package ajoute.
+- `lib/controllers/event_controller.dart`
 
 Test :
 - Selectionner une date.

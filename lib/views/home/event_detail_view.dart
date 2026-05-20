@@ -8,6 +8,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
+import '../../widgets/location_map_card.dart';
 import '../../widgets/section_title.dart';
 import '../reservation/booking_view.dart';
 
@@ -28,6 +29,12 @@ class EventDetailView extends StatelessWidget {
             title: event.title,
             subtitle: event.category,
             trailing: _StatusBadge(event: event),
+          ),
+          const SizedBox(height: 16),
+          LocationMapCard(
+            placeName: event.locationLabel,
+            latitude: event.latitude,
+            longitude: event.longitude,
           ),
           const SizedBox(height: 16),
           Card(

@@ -1,13 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 
 import '../../controllers/event_controller.dart';
 import '../../models/event_model.dart';
+import '../../models/place_model.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
+import '../../widgets/location_map_card.dart';
 import '../../widgets/section_title.dart';
+import '../map/place_picker_view.dart';
 
 class CreateEventView extends StatefulWidget {
   const CreateEventView({super.key});
@@ -30,11 +32,9 @@ class _CreateEventViewState extends State<CreateEventView> {
   String category = 'Culture';
 
   DateTime? selectedDateTime;
-  double? latitude;
-  double? longitude;
+  PlaceModel? selectedPlace;
 
   bool isLoading = false;
-  bool isGettingLocation = false;
 
   @override
   void dispose() {
@@ -83,47 +83,17 @@ class _CreateEventViewState extends State<CreateEventView> {
     });
   }
 
-  Future<void> getCurrentLocation() async {
-    setState(() => isGettingLocation = true);
+  Future<void> pickMapLocation() async {
+    final place = await Navigator.push<PlaceModel>(
+      context,
+      MaterialPageRoute(builder: (_) => const PlacePickerView()),
+    );
 
-    try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        throw "La localisation est desactivee. Activez-la dans le telephone ou l'emulateur.";
-      }
-
-      var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission == LocationPermission.denied) {
-        throw 'Permission localisation refusee.';
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        throw 'Permission refusee definitivement. Activez-la dans les parametres.';
-      }
-
-      final position = await Geolocator.getCurrentPosition();
-
-      if (!mounted) return;
-      setState(() {
-        latitude = position.latitude;
-        longitude = position.longitude;
-      });
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Position recuperee')));
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
-    } finally {
-      if (mounted) {
-        setState(() => isGettingLocation = false);
-      }
-    }
+    if (!mounted || place == null) return;
+    setState(() {
+      selectedPlace = place;
+      addressController.text = place.name;
+    });
   }
 
   Future<void> submit() async {
@@ -134,6 +104,12 @@ class _CreateEventViewState extends State<CreateEventView> {
         const SnackBar(
           content: Text("Choisissez la date et l'heure de l'evenement."),
         ),
+      );
+      return;
+    }
+    if (selectedPlace == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selectionnez un lieu sur la carte.')),
       );
       return;
     }
@@ -149,6 +125,7 @@ class _CreateEventViewState extends State<CreateEventView> {
       final seatsTotal = int.parse(seatsController.text.trim());
       final priceText = priceController.text.trim();
       final double? price = priceText.isEmpty ? null : double.parse(priceText);
+      final place = selectedPlace!;
 
       final event = EventModel(
         organizerId: user.uid,
@@ -156,9 +133,9 @@ class _CreateEventViewState extends State<CreateEventView> {
         category: category,
         description: descriptionController.text.trim(),
         dateTime: selectedDateTime!,
-        address: addressController.text.trim(),
-        latitude: latitude ?? 0,
-        longitude: longitude ?? 0,
+        address: place.name,
+        latitude: place.latitude,
+        longitude: place.longitude,
         seatsTotal: seatsTotal,
         seatsAvailable: seatsTotal,
         price: price,
@@ -250,48 +227,36 @@ class _CreateEventViewState extends State<CreateEventView> {
             const SizedBox(height: 12),
             CustomTextField(
               controller: addressController,
-              label: 'Lieu (adresse)',
+              label: 'Lieu officiel',
               icon: Icons.place_outlined,
+              readOnly: true,
+              onTap: pickMapLocation,
+              suffixIcon: const Icon(Icons.map_outlined),
               validator: (v) {
-                if (v == null || v.trim().isEmpty) {
-                  return 'Adresse obligatoire';
+                if (selectedPlace == null) {
+                  return 'Selectionnez un lieu sur la carte';
                 }
                 return null;
               },
             ),
             const SizedBox(height: 12),
             CustomButton(
-              label: 'Recuperer ma position GPS',
-              icon: Icons.my_location,
+              label: 'Choisir sur la carte',
+              icon: Icons.map_outlined,
               outlined: true,
-              onPressed: getCurrentLocation,
-              isLoading: isGettingLocation,
+              onPressed: pickMapLocation,
             ),
-            if (latitude != null && longitude != null) ...[
+            if (selectedPlace != null) ...[
               const SizedBox(height: 8),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'GPS : ${latitude!.toStringAsFixed(5)}, ${longitude!.toStringAsFixed(5)}',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              LocationMapCard(
+                placeName: selectedPlace!.name,
+                latitude: selectedPlace!.latitude,
+                longitude: selectedPlace!.longitude,
               ),
             ] else ...[
               const SizedBox(height: 8),
               Text(
-                'GPS optionnel : vous pouvez creer l evenement avec l adresse seulement.',
+                'Lieu obligatoire : recherchez ou touchez un lieu existant sur la carte.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
