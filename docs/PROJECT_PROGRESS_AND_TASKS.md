@@ -204,8 +204,8 @@ Toutes les views existantes ont une interface coherente et l'application fonctio
 | Creation evenement | [~] Partiellement termine | `create_event_view.dart`, `event_controller.dart` | Creation Firestore presente avec GPS, date, places et prix. Il manque design, validations avancees et gestion organisateur stricte. |
 | Liste des evenements | [x] Termine | `user_home.dart`, `event_controller.dart`, `event_card.dart` | Les evenements a venir sont affiches dans l'espace utilisateur avec `EventCard`. |
 | Details evenement | [x] Termine | `event_detail_view.dart`, `user_home.dart` | Page detail accessible depuis la liste avec infos, places, statut, bouton reservation placeholder et avis placeholder. |
-| Reservations | [~] Partiellement termine | `reservation_model.dart`, `reservation_controller.dart`, `booking_view.dart` | Reservation possible depuis le detail evenement. Il manque encore la page Mes reservations. |
-| Gestion des places disponibles | [x] Termine | `event_model.dart`, `reservation_controller.dart`, `booking_view.dart` | Les places sont diminuees dans une transaction Firestore lors d'une reservation. |
+| Reservations | [x] Termine | `reservation_model.dart`, `reservation_controller.dart`, `booking_view.dart`, `my_reservations_view.dart` | Reservation possible depuis le detail evenement et consultation des reservations utilisateur. |
+| Gestion des places disponibles | [x] Termine | `event_model.dart`, `reservation_controller.dart`, `booking_view.dart`, `event_detail_view.dart`, `event_card.dart` | Les places sont diminuees dans une transaction Firestore et les etats complet/indisponible sont bloques dans l'UI. |
 | Commentaires et avis | [ ] Non commence | A creer | Aucun modele Review ni interface de notes/commentaires. |
 | Filtres | [ ] Non commence | A creer | Aucun filtre categorie/date/lieu/prix. |
 | Calendrier | [ ] Non commence | A creer | Aucun affichage calendrier. |
@@ -1421,16 +1421,16 @@ L'utilisateur peut ouvrir la page de reservation depuis le detail evenement, cho
 
 ### Tâche 17 — Mes reservations
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Permettre a l'utilisateur de consulter ses reservations.
 
 Sous-taches :
-- Creer `my_reservations_view.dart`.
-- Lire les reservations de l'utilisateur.
-- Afficher evenement, quantite et statut.
-- Ajouter etat vide.
+- [x] Creer `my_reservations_view.dart`.
+- [x] Lire les reservations de l'utilisateur.
+- [x] Afficher evenement, quantite et statut.
+- [x] Ajouter etat vide.
 
 Fichiers a creer :
 - `lib/views/user/my_reservations_view.dart`
@@ -1440,24 +1440,25 @@ Fichiers a modifier :
 - `lib/views/user/user_home.dart`
 
 Test :
+- `flutter analyze` execute avec succes.
 - Faire une reservation.
 - Ouvrir Mes reservations.
 
-Resultat attendu :
-L'utilisateur retrouve ses reservations.
+Resultat obtenu :
+L'utilisateur accede a ses reservations depuis `UserHome`, voit la quantite, le statut et les informations principales de l'evenement.
 
 ### Tâche 18 — Gestion complete des places
 
-Statut : [~] Partiellement termine
+Statut : [x] Termine
 
 Objectif :
 Eviter les reservations impossibles.
 
 Sous-taches :
-- Utiliser transaction.
-- Bloquer si `seatsAvailable <= 0`.
-- Bloquer si quantite superieure aux places.
-- Afficher evenement complet.
+- [x] Utiliser transaction.
+- [x] Bloquer si `seatsAvailable <= 0`.
+- [x] Bloquer si quantite superieure aux places.
+- [x] Afficher evenement complet.
 
 Fichiers a modifier :
 - `reservation_controller.dart`
@@ -1465,11 +1466,12 @@ Fichiers a modifier :
 - `event_card.dart`
 
 Test :
+- `flutter analyze` execute avec succes.
 - Reserver toutes les places.
 - Verifier bouton desactive.
 
-Resultat attendu :
-Les places restent toujours coherentes.
+Resultat obtenu :
+Les reservations impossibles sont bloquees dans le controleur et l'interface affiche clairement les evenements complets ou indisponibles.
 
 ### Tâche 19 — Ajouter ReviewModel
 
@@ -2177,12 +2179,14 @@ Une reservation peut etre creee depuis l'application.
 
 ### Commit 17 — Ajouter mes reservations
 
+Statut : [x] Termine
+
 Objectif :
 Afficher les reservations de l'utilisateur.
 
 Taches :
-- Creer page Mes reservations.
-- Lire reservations utilisateur.
+- [x] Creer page Mes reservations.
+- [x] Lire reservations utilisateur.
 
 Fichiers touches :
 - `lib/views/user/my_reservations_view.dart`
@@ -2205,13 +2209,15 @@ L'utilisateur voit ses reservations.
 
 ### Commit 18 — Gerer les places disponibles
 
+Statut : [x] Termine
+
 Objectif :
 Eviter les reservations superieures aux places.
 
 Taches :
-- Bloquer si complet.
-- Bloquer quantite invalide.
-- Afficher statut.
+- [x] Bloquer si complet.
+- [x] Bloquer quantite invalide.
+- [x] Afficher statut.
 
 Fichiers touches :
 - `lib/controllers/reservation_controller.dart`

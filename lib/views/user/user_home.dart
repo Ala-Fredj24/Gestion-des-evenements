@@ -8,6 +8,7 @@ import '../../widgets/app_scaffold.dart';
 import '../../widgets/event_card.dart';
 import '../../widgets/section_title.dart';
 import '../home/event_detail_view.dart';
+import 'my_reservations_view.dart';
 
 class UserHome extends StatelessWidget {
   const UserHome({super.key});
@@ -32,6 +33,16 @@ class UserHome extends StatelessWidget {
               ? 'Bienvenue $displayName'
               : 'Bienvenue',
           actions: [
+            IconButton(
+              tooltip: 'Mes reservations',
+              icon: const Icon(Icons.confirmation_number_outlined),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MyReservationsView()),
+                );
+              },
+            ),
             IconButton(
               tooltip: 'Deconnexion',
               icon: const Icon(Icons.logout),

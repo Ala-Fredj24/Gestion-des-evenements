@@ -80,6 +80,10 @@ class EventDetailView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+          if (!canOpenBooking) ...[
+            _ReservationNotice(event: event),
+            const SizedBox(height: 16),
+          ],
           CustomButton(
             label: canOpenBooking
                 ? 'Reserver'
@@ -112,6 +116,46 @@ class EventDetailView extends StatelessWidget {
           const SizedBox(height: 12),
           const _EmptyReviewsCard(),
         ],
+      ),
+    );
+  }
+}
+
+class _ReservationNotice extends StatelessWidget {
+  final EventModel event;
+
+  const _ReservationNotice({required this.event});
+
+  @override
+  Widget build(BuildContext context) {
+    String message;
+    if (event.id == null) {
+      message = 'Reservation impossible pour cet evenement.';
+    } else if (!event.isActive) {
+      message = 'Cet evenement n est plus disponible.';
+    } else if (!event.isUpcoming) {
+      message = 'Cet evenement est deja passe.';
+    } else if (event.isFull) {
+      message = 'Cet evenement est complet.';
+    } else {
+      message = 'Reservation indisponible pour le moment.';
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline, color: AppTheme.textSecondary),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

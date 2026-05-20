@@ -39,6 +39,19 @@ class _BookingViewState extends State<BookingView> {
   }
 
   Future<void> confirmBooking() async {
+    if (!widget.event.canReserve || widget.event.id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_unavailableMessage(widget.event))),
+      );
+      return;
+    }
+    if (quantity <= 0 || quantity > widget.event.seatsAvailable) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Quantite invalide.')));
+      return;
+    }
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -193,6 +206,10 @@ class _BookingViewState extends State<BookingView> {
               ),
             ),
           ),
+          if (!canSubmit) ...[
+            const SizedBox(height: 16),
+            _UnavailableReservationCard(message: _unavailableMessage(event)),
+          ],
           const SizedBox(height: 20),
           CustomButton(
             label: canSubmit ? 'Confirmer la reservation' : event.status,
@@ -201,6 +218,49 @@ class _BookingViewState extends State<BookingView> {
             isLoading: isLoading,
           ),
         ],
+      ),
+    );
+  }
+
+  String _unavailableMessage(EventModel event) {
+    if (event.id == null) {
+      return 'Reservation impossible pour cet evenement.';
+    }
+    if (!event.isActive) {
+      return 'Cet evenement n est plus disponible.';
+    }
+    if (!event.isUpcoming) {
+      return 'Cet evenement est deja passe.';
+    }
+    if (event.isFull) {
+      return 'Cet evenement est complet.';
+    }
+    return 'Reservation indisponible pour le moment.';
+  }
+}
+
+class _UnavailableReservationCard extends StatelessWidget {
+  final String message;
+
+  const _UnavailableReservationCard({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline, color: AppTheme.textSecondary),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

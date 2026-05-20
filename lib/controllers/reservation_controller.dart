@@ -51,6 +51,9 @@ class ReservationController {
         if (!freshEvent.isUpcoming) {
           throw Exception('Cet evenement est deja passe.');
         }
+        if (freshEvent.isFull) {
+          throw Exception('Cet evenement est complet.');
+        }
         if (freshEvent.seatsAvailable < quantity) {
           throw Exception('Places insuffisantes.');
         }

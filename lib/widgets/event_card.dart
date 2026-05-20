@@ -71,6 +71,9 @@ class EventCard extends StatelessWidget {
     if (!event.isActive) {
       return AppTheme.textSecondary;
     }
+    if (!event.isUpcoming) {
+      return AppTheme.textSecondary;
+    }
     if (event.isFull) {
       return AppTheme.error;
     }
