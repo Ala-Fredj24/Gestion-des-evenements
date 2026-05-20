@@ -206,7 +206,7 @@ Toutes les views existantes ont une interface coherente et l'application fonctio
 | Details evenement | [x] Termine | `event_detail_view.dart`, `user_home.dart` | Page detail accessible depuis la liste avec infos, places, statut, bouton reservation placeholder et avis placeholder. |
 | Reservations | [x] Termine | `reservation_model.dart`, `reservation_controller.dart`, `booking_view.dart`, `my_reservations_view.dart` | Reservation possible depuis le detail evenement et consultation des reservations utilisateur. |
 | Gestion des places disponibles | [x] Termine | `event_model.dart`, `reservation_controller.dart`, `booking_view.dart`, `event_detail_view.dart`, `event_card.dart` | Les places sont diminuees dans une transaction Firestore et les etats complet/indisponible sont bloques dans l'UI. |
-| Commentaires et avis | [ ] Non commence | A creer | Aucun modele Review ni interface de notes/commentaires. |
+| Commentaires et avis | [x] Termine | `review_model.dart`, `review_controller.dart`, `event_detail_view.dart` | Les utilisateurs peuvent ajouter une note/commentaire et consulter les avis avec moyenne. |
 | Filtres | [ ] Non commence | A creer | Aucun filtre categorie/date/lieu/prix. |
 | Calendrier | [ ] Non commence | A creer | Aucun affichage calendrier. |
 | Securite Firestore | [ ] Non commence | Firebase Console | Les regles ne sont pas documentees dans le projet. |
@@ -1475,37 +1475,37 @@ Les reservations impossibles sont bloquees dans le controleur et l'interface aff
 
 ### Tâche 19 — Ajouter ReviewModel
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Representer les avis utilisateurs.
 
 Sous-taches :
-- Creer `ReviewModel`.
-- Ajouter `id`, `userId`, `eventId`, `rating`, `comment`, `createdAt`.
-- Ajouter validations simples.
+- [x] Creer `ReviewModel`.
+- [x] Ajouter `id`, `userId`, `eventId`, `rating`, `comment`, `createdAt`.
+- [x] Ajouter validations simples.
 
 Fichiers a creer :
 - `lib/models/review_model.dart`
 
 Test :
-- Verifier compilation.
+- `flutter analyze` execute avec succes.
 
-Resultat attendu :
-Les avis ont un modele clair.
+Resultat obtenu :
+Les avis ont un modele clair compatible Firestore avec mapping, note, commentaire et date de creation.
 
 ### Tâche 20 — Commentaires et notation
 
-Statut : [ ] Non commence
+Statut : [x] Termine
 
 Objectif :
 Permettre aux utilisateurs de noter et commenter un evenement.
 
 Sous-taches :
-- Creer `ReviewController`.
-- Ajouter formulaire avis dans detail evenement.
-- Afficher liste des avis.
-- Afficher note moyenne si possible.
+- [x] Creer `ReviewController`.
+- [x] Ajouter formulaire avis dans detail evenement.
+- [x] Afficher liste des avis.
+- [x] Afficher note moyenne si possible.
 
 Fichiers a creer :
 - `lib/controllers/review_controller.dart`
@@ -1518,12 +1518,13 @@ Configuration manuelle :
 - Verifier regles Firestore.
 
 Test :
+- `flutter analyze` execute avec succes.
 - Ajouter un avis.
 - Verifier Firestore.
 - Verifier affichage.
 
-Resultat attendu :
-Les avis sont visibles sur les evenements.
+Resultat obtenu :
+La page detail evenement permet de publier une note de 1 a 5 avec commentaire, affiche la moyenne et liste les avis existants.
 
 ### Tâche 21 — Filtres evenements
 
@@ -2240,11 +2241,13 @@ Les places restent coherentes.
 
 ### Commit 19 — Ajouter le modele Review
 
+Statut : [x] Termine
+
 Objectif :
 Representer les avis.
 
 Taches :
-- Creer `ReviewModel`.
+- [x] Creer `ReviewModel`.
 
 Fichiers touches :
 - `lib/models/review_model.dart`
@@ -2265,13 +2268,15 @@ Le modele avis compile.
 
 ### Commit 20 — Ajouter commentaires et notation
 
+Statut : [x] Termine
+
 Objectif :
 Permettre avis et notes.
 
 Taches :
-- Creer `ReviewController`.
-- Ajouter formulaire avis.
-- Afficher avis.
+- [x] Creer `ReviewController`.
+- [x] Ajouter formulaire avis.
+- [x] Afficher avis.
 
 Fichiers touches :
 - `lib/controllers/review_controller.dart`

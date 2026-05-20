@@ -7,6 +7,7 @@ import '../../widgets/app_scaffold.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/event_card.dart';
 import '../../widgets/section_title.dart';
+import '../home/event_detail_view.dart';
 import 'create_event_view.dart';
 
 class OrganizerHome extends StatelessWidget {
@@ -92,7 +93,17 @@ class OrganizerHome extends StatelessWidget {
                 return Column(
                   children: [
                     for (final event in events) ...[
-                      EventCard(event: event),
+                      EventCard(
+                        event: event,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EventDetailView(event: event),
+                            ),
+                          );
+                        },
+                      ),
                       const SizedBox(height: 12),
                     ],
                   ],
