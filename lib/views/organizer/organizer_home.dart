@@ -10,13 +10,62 @@ import '../../widgets/section_title.dart';
 import '../home/event_detail_view.dart';
 import 'create_event_view.dart';
 
-class OrganizerHome extends StatelessWidget {
+class OrganizerHome extends StatefulWidget {
   const OrganizerHome({super.key});
 
   @override
+  State<OrganizerHome> createState() => _OrganizerHomeState();
+}
+
+class _OrganizerHomeState extends State<OrganizerHome> {
+  final AuthController authController = AuthController();
+  final EventController eventController = EventController();
+
+  Future<void> deleteEvent(EventModel event) async {
+    final firebaseUser = authController.user;
+    final eventId = event.id;
+    if (firebaseUser == null || eventId == null) return;
+
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Supprimer evenement'),
+        content: Text('Supprimer "${event.title}" definitivement ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(context, true),
+            icon: const Icon(Icons.delete_outline),
+            label: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete != true) return;
+
+    try {
+      await eventController.deleteEvent(
+        eventId: eventId,
+        currentOrganizerId: firebaseUser.uid,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Evenement supprime')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final authController = AuthController();
-    final eventController = EventController();
     final firebaseUser = authController.user;
     final displayName = firebaseUser?.displayName?.trim();
 
@@ -24,6 +73,13 @@ class OrganizerHome extends StatelessWidget {
       title: displayName != null && displayName.isNotEmpty
           ? 'Bienvenue $displayName'
           : 'Bienvenue',
+      actions: [
+        IconButton(
+          tooltip: 'Deconnexion',
+          icon: const Icon(Icons.logout),
+          onPressed: authController.logout,
+        ),
+      ],
       child: ListView(
         children: [
           SectionTitle(
@@ -41,13 +97,6 @@ class OrganizerHome extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const CreateEventView()),
               );
             },
-          ),
-          const SizedBox(height: 12),
-          CustomButton(
-            label: 'Deconnexion',
-            icon: Icons.logout,
-            outlined: true,
-            onPressed: authController.logout,
           ),
           const SizedBox(height: 24),
           const SectionTitle(title: 'Mes evenements'),
@@ -93,9 +142,9 @@ class OrganizerHome extends StatelessWidget {
                 return Column(
                   children: [
                     for (final event in events) ...[
-                      EventCard(
+                      _OrganizerEventItem(
                         event: event,
-                        onTap: () {
+                        onOpen: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -103,6 +152,15 @@ class OrganizerHome extends StatelessWidget {
                             ),
                           );
                         },
+                        onEdit: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CreateEventView(event: event),
+                            ),
+                          );
+                        },
+                        onDelete: () => deleteEvent(event),
                       ),
                       const SizedBox(height: 12),
                     ],
@@ -112,6 +170,49 @@ class OrganizerHome extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+class _OrganizerEventItem extends StatelessWidget {
+  final EventModel event;
+  final VoidCallback onOpen;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const _OrganizerEventItem({
+    required this.event,
+    required this.onOpen,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        EventCard(event: event, onTap: onOpen),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: onEdit,
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Modifier'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: onDelete,
+                icon: const Icon(Icons.delete_outline),
+                label: const Text('Supprimer'),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

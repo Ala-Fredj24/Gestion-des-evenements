@@ -30,7 +30,7 @@ class AppScaffold extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text(title), actions: actions),
+      appBar: AppBar(title: Text(title), actions: actions, centerTitle: true),
       floatingActionButton: floatingActionButton,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       body: body,

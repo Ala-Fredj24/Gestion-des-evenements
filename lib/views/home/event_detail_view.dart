@@ -30,13 +30,36 @@ class EventDetailView extends StatelessWidget {
             subtitle: event.category,
             trailing: _StatusBadge(event: event),
           ),
+          if (event.imageUrl != null && event.imageUrl!.trim().isNotEmpty) ...[
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Image.network(
+                  event.imageUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.08),
+                    child: const Center(
+                      child: Icon(Icons.broken_image_outlined, size: 42),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
-          LocationMapCard(
-            placeName: event.locationLabel,
-            latitude: event.latitude,
-            longitude: event.longitude,
-          ),
-          const SizedBox(height: 16),
+          if (event.hasMapLocation) ...[
+            LocationMapCard(
+              placeName: event.locationLabel,
+              latitude: event.latitude,
+              longitude: event.longitude,
+            ),
+            const SizedBox(height: 16),
+          ],
           Card(
             child: Padding(
               padding: const EdgeInsets.all(18),
@@ -101,7 +124,7 @@ class EventDetailView extends StatelessWidget {
                 : event.id == null
                 ? 'Reservation impossible'
                 : event.status,
-            icon: event.canReserve
+            icon: canOpenBooking
                 ? Icons.confirmation_number_outlined
                 : Icons.block_outlined,
             onPressed: canOpenBooking

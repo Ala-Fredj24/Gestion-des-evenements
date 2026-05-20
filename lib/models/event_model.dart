@@ -45,6 +45,8 @@ class EventModel {
 
   bool get canReserve => isActive && isUpcoming && !isFull;
 
+  bool get hasMapLocation => latitude != 0 || longitude != 0;
+
   String get priceLabel =>
       isFree ? 'Gratuit' : '${price!.toStringAsFixed(2)} DT';
 

@@ -3,10 +3,6 @@
     <!-- Internet pour Firebase, Firestore, Auth, API, etc. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- Permissions GPS pour Geolocator -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
     <application
         android:label="devmob_developpement"
         android:name="${applicationName}"

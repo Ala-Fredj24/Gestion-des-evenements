@@ -108,7 +108,7 @@ class _AuthStateView extends StatelessWidget {
   }) : isLoading = false;
 
   const _AuthStateView.loading()
-    : title = 'DEVMOB',
+    : title = 'Gestion des evenements',
       icon = Icons.hourglass_empty,
       message = '',
       actionLabel = null,
@@ -120,7 +120,7 @@ class _AuthStateView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const AppScaffold(
-        title: 'DEVMOB',
+        title: 'Gestion des evenements',
         centerContent: true,
         child: CircularProgressIndicator(),
       );

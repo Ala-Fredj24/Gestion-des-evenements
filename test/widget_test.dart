@@ -1,30 +1,82 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:devmob_developpement/main.dart';
+import 'package:devmob_developpement/models/event_model.dart';
+import 'package:devmob_developpement/models/place_model.dart';
+import 'package:devmob_developpement/models/review_model.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('EventModel display helpers', () {
+    test('formats free upcoming event state', () {
+      final event = EventModel(
+        id: 'event-1',
+        organizerId: 'organizer-1',
+        title: 'Concert',
+        category: 'Culture',
+        description: 'Concert public',
+        dateTime: DateTime.now().add(const Duration(days: 1)),
+        address: 'Theatre municipal',
+        latitude: 36.8,
+        longitude: 10.18,
+        seatsTotal: 20,
+        seatsAvailable: 8,
+      );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      expect(event.isFree, isTrue);
+      expect(event.canReserve, isTrue);
+      expect(event.priceLabel, 'Gratuit');
+      expect(event.status, 'Disponible');
+      expect(event.hasMapLocation, isTrue);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('blocks full events', () {
+      final event = EventModel(
+        organizerId: 'organizer-1',
+        title: 'Match',
+        category: 'Sport',
+        description: 'Match local',
+        dateTime: DateTime.now().add(const Duration(days: 1)),
+        address: 'Stade',
+        latitude: 0,
+        longitude: 0,
+        seatsTotal: 10,
+        seatsAvailable: 0,
+        price: 15,
+      );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      expect(event.isFull, isTrue);
+      expect(event.canReserve, isFalse);
+      expect(event.status, 'Complet');
+      expect(event.hasMapLocation, isFalse);
+    });
+  });
+
+  group('ReviewModel', () {
+    test('maps rating and comment helpers', () {
+      const review = ReviewModel(
+        userId: 'user-1',
+        eventId: 'event-1',
+        rating: 4,
+        comment: 'Tres bon evenement.',
+      );
+
+      expect(review.ratingLabel, '4/5');
+      expect(review.hasComment, isTrue);
+      expect(review.toMap()['rating'], 4);
+    });
+  });
+
+  group('PlaceModel', () {
+    test('uses official Nominatim name when available', () {
+      final place = PlaceModel.fromNominatim({
+        'display_name': 'Theatre Municipal, Tunis, Tunisie',
+        'namedetails': {'name': 'Theatre Municipal'},
+        'lat': '36.79920',
+        'lon': '10.18150',
+      });
+
+      expect(place.name, 'Theatre Municipal');
+      expect(place.latitude, 36.79920);
+      expect(place.longitude, 10.18150);
+    });
   });
 }

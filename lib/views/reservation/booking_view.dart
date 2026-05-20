@@ -19,6 +19,11 @@ class BookingView extends StatefulWidget {
 
 class _BookingViewState extends State<BookingView> {
   final ReservationController _reservationController = ReservationController();
+  final _paymentFormKey = GlobalKey<FormState>();
+  final cardholderController = TextEditingController();
+  final cardNumberController = TextEditingController();
+  final expirationController = TextEditingController();
+  final cvvController = TextEditingController();
 
   int quantity = 1;
   bool isLoading = false;
@@ -27,6 +32,17 @@ class _BookingViewState extends State<BookingView> {
 
   String get totalPriceLabel =>
       widget.event.isFree ? 'Gratuit' : '${totalPrice.toStringAsFixed(2)} DT';
+
+  bool get requiresPayment => !widget.event.isFree;
+
+  @override
+  void dispose() {
+    cardholderController.dispose();
+    cardNumberController.dispose();
+    expirationController.dispose();
+    cvvController.dispose();
+    super.dispose();
+  }
 
   void decrementQuantity() {
     if (quantity <= 1) return;
@@ -59,6 +75,10 @@ class _BookingViewState extends State<BookingView> {
       );
       return;
     }
+    if (requiresPayment &&
+        !(_paymentFormKey.currentState?.validate() ?? false)) {
+      return;
+    }
 
     setState(() => isLoading = true);
 
@@ -70,9 +90,8 @@ class _BookingViewState extends State<BookingView> {
       );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Reservation confirmee')));
+      await _showConfirmationDialog(user.email ?? 'votre email');
+      if (!mounted) return;
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
@@ -84,6 +103,31 @@ class _BookingViewState extends State<BookingView> {
         setState(() => isLoading = false);
       }
     }
+  }
+
+  Future<void> _showConfirmationDialog(String email) {
+    return showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          requiresPayment ? 'Paiement reussi' : 'Reservation confirmee',
+        ),
+        content: Text(
+          'Email simule envoye a $email\n\n'
+          'Evenement : ${widget.event.title}\n'
+          'Date : ${widget.event.dateLabel}\n'
+          'Lieu : ${widget.event.locationLabel}\n'
+          'Places : $quantity\n'
+          'Total : $totalPriceLabel',
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -206,6 +250,16 @@ class _BookingViewState extends State<BookingView> {
               ),
             ),
           ),
+          if (requiresPayment) ...[
+            const SizedBox(height: 16),
+            _PaymentSimulationForm(
+              formKey: _paymentFormKey,
+              cardholderController: cardholderController,
+              cardNumberController: cardNumberController,
+              expirationController: expirationController,
+              cvvController: cvvController,
+            ),
+          ],
           if (!canSubmit) ...[
             const SizedBox(height: 16),
             _UnavailableReservationCard(message: _unavailableMessage(event)),
@@ -236,6 +290,130 @@ class _BookingViewState extends State<BookingView> {
       return 'Cet evenement est complet.';
     }
     return 'Reservation indisponible pour le moment.';
+  }
+}
+
+class _PaymentSimulationForm extends StatelessWidget {
+  final GlobalKey<FormState> formKey;
+  final TextEditingController cardholderController;
+  final TextEditingController cardNumberController;
+  final TextEditingController expirationController;
+  final TextEditingController cvvController;
+
+  const _PaymentSimulationForm({
+    required this.formKey,
+    required this.cardholderController,
+    required this.cardNumberController,
+    required this.expirationController,
+    required this.cvvController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Paiement simule',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: cardholderController,
+                decoration: const InputDecoration(
+                  labelText: 'Nom du titulaire',
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
+                textCapitalization: TextCapitalization.words,
+                validator: (value) {
+                  if (value == null || value.trim().length < 3) {
+                    return 'Nom du titulaire obligatoire';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: cardNumberController,
+                decoration: const InputDecoration(
+                  labelText: 'Numero de carte',
+                  prefixIcon: Icon(Icons.credit_card),
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  final digits = (value ?? '').replaceAll(RegExp(r'\D'), '');
+                  if (digits.length != 15) {
+                    return 'introduisez un numero de carte 15 chiffres';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: expirationController,
+                      decoration: const InputDecoration(
+                        labelText: 'Expiration',
+                        hintText: 'MM/AA',
+                        prefixIcon: Icon(Icons.calendar_today),
+                      ),
+                      keyboardType: TextInputType.datetime,
+                      validator: (value) {
+                        final text = (value ?? '').trim();
+                        if (!RegExp(r'^\d{2}/\d{2}$').hasMatch(text)) {
+                          return 'Format MM/AA';
+                        }
+                        final month = int.tryParse(text.substring(0, 2));
+                        if (month == null || month < 1 || month > 12) {
+                          return 'Mois invalide';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextFormField(
+                      controller: cvvController,
+                      decoration: const InputDecoration(
+                        labelText: 'CVV',
+                        prefixIcon: Icon(Icons.lock_outline),
+                      ),
+                      keyboardType: TextInputType.number,
+                      obscureText: true,
+                      validator: (value) {
+                        final digits = (value ?? '').replaceAll(
+                          RegExp(r'\D'),
+                          '',
+                        );
+                        if (digits.length != 3) {
+                          return 'CVV doit etre 3 chiffres';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Simulation uniquement : aucun paiement reel ne sera effectue.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

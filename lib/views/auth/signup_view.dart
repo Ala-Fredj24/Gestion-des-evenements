@@ -5,6 +5,7 @@ import '../../widgets/app_scaffold.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/section_title.dart';
+import 'signup_success_view.dart';
 
 class SignupView extends StatefulWidget {
   const SignupView({super.key});
@@ -37,7 +38,8 @@ class _SignupViewState extends State<SignupView> {
 
     setState(() => isLoading = true);
 
-    final res = await AuthController().signUp(
+    final authController = AuthController();
+    final res = await authController.signUp(
       email: emailController.text,
       password: passwordController.text,
       role: role,
@@ -52,7 +54,14 @@ class _SignupViewState extends State<SignupView> {
       return;
     }
 
-    Navigator.pop(context);
+    await authController.logout();
+
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const SignupSuccessView()),
+      (_) => false,
+    );
   }
 
   @override

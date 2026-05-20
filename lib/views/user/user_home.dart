@@ -213,7 +213,10 @@ class _EventFilters extends StatelessWidget {
                     ),
                   ),
                 ),
-                TextButton(onPressed: onReset, child: const Text('Reset')),
+                TextButton(
+                  onPressed: onReset,
+                  child: const Text('Reinitialiser'),
+                ),
               ],
             ),
             const SizedBox(height: 12),
