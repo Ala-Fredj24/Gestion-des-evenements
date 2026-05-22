@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../../controllers/auth_controller.dart';
+import '../../widgets/app_scaffold.dart';
+import '../../widgets/custom_button.dart';
+import '../../widgets/custom_text_field.dart';
+import '../../widgets/section_title.dart';
 import 'signup_view.dart';
 
 class LoginView extends StatefulWidget {
@@ -33,71 +38,84 @@ class _LoginViewState extends State<LoginView> {
       password: passwordController.text,
     );
 
+    if (!mounted) return;
     setState(() => isLoading = false);
 
-    if (res != null && mounted) {
+    if (res != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res)));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Center(child: Text("Gestion d'événements"))),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(labelText: "Email"),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) {
-                    return "Entrez votre email";
-                  }
-                  if (!v.contains('@')) return "Email invalide";
-                  return null;
-                },
+    return AppScaffold(
+      title: 'Gestion des evenements',
+      centerContent: true,
+      child: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SectionTitle(
+                      title: 'Connexion',
+                      subtitle: 'Accedez aux evenements culturels et sportifs.',
+                    ),
+                    const SizedBox(height: 24),
+                    CustomTextField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      label: 'Email',
+                      icon: Icons.email_outlined,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return 'Entrez votre email';
+                        }
+                        if (!v.contains('@')) return 'Email invalide';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    CustomTextField(
+                      controller: passwordController,
+                      label: 'Mot de passe',
+                      icon: Icons.lock_outline,
+                      obscureText: true,
+                      validator: (v) {
+                        if (v == null || v.isEmpty) {
+                          return 'Entrez votre mot de passe';
+                        }
+                        if (v.length < 7) return 'Minimum 7 caracteres';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    CustomButton(
+                      label: 'Se connecter',
+                      icon: Icons.login,
+                      onPressed: doLogin,
+                      isLoading: isLoading,
+                    ),
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SignupView()),
+                        );
+                      },
+                      child: const Text('Creer un compte'),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "Mot de passe"),
-                validator: (v) {
-                  if (v == null || v.isEmpty) {
-                    return "Entrez votre mot de passe";
-                  }
-                  if (v.length < 7) return "Minimum 7 caractères";
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: isLoading ? null : doLogin,
-                child: isLoading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text("Se connecter"),
-              ),
-              const SizedBox(height: 10),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SignupView()),
-                  );
-                },
-                child: const Text("Créer un compte"),
-              ),
-            ],
+            ),
           ),
         ),
       ),

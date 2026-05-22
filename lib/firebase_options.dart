@@ -83,5 +83,4 @@ class DefaultFirebaseOptions {
     authDomain: 'devmob-events.firebaseapp.com',
     storageBucket: 'devmob-events.firebasestorage.app',
   );
-
 }

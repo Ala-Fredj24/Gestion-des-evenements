@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../../controllers/auth_controller.dart';
+import '../../widgets/app_scaffold.dart';
+import '../../widgets/custom_button.dart';
+import '../../widgets/custom_text_field.dart';
+import '../../widgets/section_title.dart';
+import 'signup_success_view.dart';
 
 class SignupView extends StatefulWidget {
   const SignupView({super.key});
@@ -10,15 +16,17 @@ class SignupView extends StatefulWidget {
 
 class _SignupViewState extends State<SignupView> {
   final _formKey = GlobalKey<FormState>();
+  final displayNameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmController = TextEditingController();
 
-  String role = 'user'; // default: Utilisateur
+  String role = 'user';
   bool isLoading = false;
 
   @override
   void dispose() {
+    displayNameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmController.dispose();
@@ -30,100 +38,142 @@ class _SignupViewState extends State<SignupView> {
 
     setState(() => isLoading = true);
 
-    final res = await AuthController().signUp(
+    final authController = AuthController();
+    final res = await authController.signUp(
       email: emailController.text,
       password: passwordController.text,
       role: role,
+      displayName: displayNameController.text,
     );
 
+    if (!mounted) return;
     setState(() => isLoading = false);
 
-    if (res != null && mounted) {
+    if (res != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res)));
       return;
     }
 
-    // Success: go back to login (optional). AuthWrapper may already redirect because user is logged in.
-    if (mounted) Navigator.pop(context);
+    await authController.logout();
+
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const SignupSuccessView()),
+      (_) => false,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Inscription")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              DropdownButtonFormField<String>(
-                initialValue: role,
-                decoration: const InputDecoration(labelText: "Rôle"),
-                items: const [
-                  DropdownMenuItem(value: 'user', child: Text("Utilisateur")),
-                  DropdownMenuItem(
-                    value: 'organizer',
-                    child: Text("Organisateur"),
-                  ),
-                ],
-                onChanged: (v) {
-                  if (v != null) setState(() => role = v);
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(labelText: "Email"),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) {
-                    return "Entrez votre email";
-                  }
-                  if (!v.contains('@')) return "Email invalide";
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "Mot de passe"),
-                validator: (v) {
-                  if (v == null || v.isEmpty) return "Entrez un mot de passe";
-                  if (v.length < 7) return "Minimum 7 caractères";
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: confirmController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Confirmer le mot de passe",
+    return AppScaffold(
+      title: 'Inscription',
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    const SectionTitle(
+                      title: 'Creer un compte',
+                      subtitle:
+                          'Choisissez votre role pour acceder au bon espace.',
+                    ),
+                    const SizedBox(height: 24),
+                    DropdownButtonFormField<String>(
+                      initialValue: role,
+                      decoration: const InputDecoration(
+                        labelText: 'Role',
+                        prefixIcon: Icon(Icons.badge_outlined),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'user',
+                          child: Text('Utilisateur'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'organizer',
+                          child: Text('Organisateur'),
+                        ),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) setState(() => role = v);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    CustomTextField(
+                      controller: displayNameController,
+                      keyboardType: TextInputType.name,
+                      label: 'Nom complet',
+                      icon: Icons.person_outline,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return 'Entrez votre nom';
+                        }
+                        if (v.trim().length < 2) return 'Nom trop court';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    CustomTextField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      label: 'Email',
+                      icon: Icons.email_outlined,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return 'Entrez votre email';
+                        }
+                        if (!v.contains('@')) return 'Email invalide';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    CustomTextField(
+                      controller: passwordController,
+                      label: 'Mot de passe',
+                      icon: Icons.lock_outline,
+                      obscureText: true,
+                      validator: (v) {
+                        if (v == null || v.isEmpty) {
+                          return 'Entrez un mot de passe';
+                        }
+                        if (v.length < 7) return 'Minimum 7 caracteres';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    CustomTextField(
+                      controller: confirmController,
+                      label: 'Confirmer le mot de passe',
+                      icon: Icons.verified_user_outlined,
+                      obscureText: true,
+                      validator: (v) {
+                        if (v == null || v.isEmpty) {
+                          return 'Confirmez votre mot de passe';
+                        }
+                        if (v != passwordController.text) {
+                          return 'Les mots de passe ne correspondent pas';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    CustomButton(
+                      label: 'Creer le compte',
+                      icon: Icons.person_add_alt_1,
+                      onPressed: doSignup,
+                      isLoading: isLoading,
+                    ),
+                  ],
                 ),
-                validator: (v) {
-                  if (v == null || v.isEmpty) {
-                    return "Confirmez votre mot de passe";
-                  }
-                  if (v != passwordController.text) {
-                    return "Les mots de passe ne correspondent pas";
-                  }
-                  return null;
-                },
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: isLoading ? null : doSignup,
-                child: isLoading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text("Créer le compte"),
-              ),
-            ],
+            ),
           ),
         ),
       ),
