@@ -12,7 +12,9 @@ import 'calendar_view.dart';
 import 'my_reservations_view.dart';
 
 class UserHome extends StatefulWidget {
-  const UserHome({super.key});
+  final UserModel profile;
+
+  const UserHome({super.key, required this.profile});
 
   @override
   State<UserHome> createState() => _UserHomeState();
@@ -46,132 +48,123 @@ class _UserHomeState extends State<UserHome> {
   Widget build(BuildContext context) {
     final authController = AuthController();
     final firebaseUser = authController.user;
+    final profileName = widget.profile.displayName.trim();
+    final firebaseName = firebaseUser?.displayName?.trim();
+    final displayName = profileName.isNotEmpty ? profileName : firebaseName;
 
-    return FutureBuilder<UserModel?>(
-      future: authController.getCurrentUserProfile(),
-      builder: (context, profileSnapshot) {
-        final profileName = profileSnapshot.data?.displayName.trim();
-        final firebaseName = firebaseUser?.displayName?.trim();
-        final displayName = profileName != null && profileName.isNotEmpty
-            ? profileName
-            : firebaseName;
-
-        return AppScaffold(
-          title: displayName != null && displayName.isNotEmpty
-              ? 'Bienvenue $displayName'
-              : 'Bienvenue',
-          actions: [
-            IconButton(
-              tooltip: 'Calendrier',
-              icon: const Icon(Icons.calendar_month_outlined),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const CalendarView()),
-                );
-              },
-            ),
-            IconButton(
-              tooltip: 'Mes reservations',
-              icon: const Icon(Icons.confirmation_number_outlined),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const MyReservationsView()),
-                );
-              },
-            ),
-            IconButton(
-              tooltip: 'Deconnexion',
-              icon: const Icon(Icons.logout),
-              onPressed: authController.logout,
-            ),
-          ],
-          child: ListView(
-            children: [
-              const SectionTitle(
-                title: 'Evenements disponibles',
-                subtitle:
-                    'Consultez les prochains evenements culturels et sportifs.',
-              ),
-              const SizedBox(height: 16),
-              _EventFilters(
-                selectedCategory: selectedCategory,
-                selectedPrice: selectedPrice,
-                onCategoryChanged: (value) {
-                  if (value == null) return;
-                  setState(() => selectedCategory = value);
-                },
-                onPriceChanged: (value) {
-                  if (value == null) return;
-                  setState(() => selectedPrice = value);
-                },
-                onReset: () {
-                  setState(() {
-                    selectedCategory = allCategories;
-                    selectedPrice = allPrices;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              StreamBuilder<List<EventModel>>(
-                stream: eventController.getUpcomingEvents(
-                  category: categoryFilter,
-                  isFree: priceFilter,
-                ),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(24),
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-
-                  if (snapshot.hasError) {
-                    return const _UserEventState(
-                      icon: Icons.error_outline,
-                      title: 'Chargement impossible',
-                      message:
-                          'Impossible de charger les evenements. Verifiez votre connexion et les permissions Firestore.',
-                    );
-                  }
-
-                  final events = snapshot.data ?? [];
-                  if (events.isEmpty) {
-                    return const _UserEventState(
-                      icon: Icons.filter_alt_off_outlined,
-                      title: 'Aucun evenement trouve',
-                      message:
-                          'Aucun evenement ne correspond aux filtres choisis.',
-                    );
-                  }
-
-                  return Column(
-                    children: [
-                      for (final event in events) ...[
-                        EventCard(
-                          event: event,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => EventDetailView(event: event),
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                    ],
-                  );
-                },
-              ),
-            ],
+    return AppScaffold(
+      title: displayName != null && displayName.isNotEmpty
+          ? 'Bienvenue $displayName'
+          : 'Bienvenue',
+      actions: [
+        IconButton(
+          tooltip: 'Calendrier',
+          icon: const Icon(Icons.calendar_month_outlined),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CalendarView()),
+            );
+          },
+        ),
+        IconButton(
+          tooltip: 'Mes reservations',
+          icon: const Icon(Icons.confirmation_number_outlined),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MyReservationsView()),
+            );
+          },
+        ),
+        IconButton(
+          tooltip: 'Deconnexion',
+          icon: const Icon(Icons.logout),
+          onPressed: authController.logout,
+        ),
+      ],
+      child: ListView(
+        children: [
+          const SectionTitle(
+            title: 'Evenements disponibles',
+            subtitle:
+                'Consultez les prochains evenements culturels et sportifs.',
           ),
-        );
-      },
+          const SizedBox(height: 16),
+          _EventFilters(
+            selectedCategory: selectedCategory,
+            selectedPrice: selectedPrice,
+            onCategoryChanged: (value) {
+              if (value == null) return;
+              setState(() => selectedCategory = value);
+            },
+            onPriceChanged: (value) {
+              if (value == null) return;
+              setState(() => selectedPrice = value);
+            },
+            onReset: () {
+              setState(() {
+                selectedCategory = allCategories;
+                selectedPrice = allPrices;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+          StreamBuilder<List<EventModel>>(
+            stream: eventController.getUpcomingEvents(
+              category: categoryFilter,
+              isFree: priceFilter,
+            ),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+
+              if (snapshot.hasError) {
+                return const _UserEventState(
+                  icon: Icons.error_outline,
+                  title: 'Chargement impossible',
+                  message:
+                      'Impossible de charger les evenements. Verifiez votre connexion et les permissions Firestore.',
+                );
+              }
+
+              final events = snapshot.data ?? [];
+              if (events.isEmpty) {
+                return const _UserEventState(
+                  icon: Icons.filter_alt_off_outlined,
+                  title: 'Aucun evenement trouve',
+                  message: 'Aucun evenement ne correspond aux filtres choisis.',
+                );
+              }
+
+              return Column(
+                children: [
+                  for (final event in events) ...[
+                    EventCard(
+                      event: event,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => EventDetailView(event: event),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -6,6 +8,8 @@ import '../models/user_model.dart';
 class AuthController {
   static const String userRole = 'user';
   static const String organizerRole = 'organizer';
+  static const Duration _authTimeout = Duration(seconds: 20);
+  static const Duration _firestoreTimeout = Duration(seconds: 15);
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -32,11 +36,10 @@ class AuthController {
     required String password,
   }) async {
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password.trim(),
-      );
+      await _signIn(email: email, password: password);
       return null;
+    } on TimeoutException {
+      return 'Connexion impossible. Verifiez Firebase, Internet ou relancez l application.';
     } on FirebaseAuthException catch (e) {
       return getErrorMessage(e);
     } on FirebaseException catch (e) {
@@ -53,10 +56,7 @@ class AuthController {
     required String displayName,
   }) async {
     try {
-      final cred = await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password.trim(),
-      );
+      final cred = await _signIn(email: email, password: password);
 
       final cleanedDisplayName = displayName.trim();
       if (cleanedDisplayName.isNotEmpty) {
@@ -71,13 +71,19 @@ class AuthController {
         role: normalizeRole(role),
       );
 
-      await _firestore.collection('users').doc(userProfile.uid).set({
-        ...userProfile.toMap(),
-        'createdAt': FieldValue.serverTimestamp(),
-        'restoredAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      await _firestore
+          .collection('users')
+          .doc(userProfile.uid)
+          .set({
+            ...userProfile.toMap(),
+            'createdAt': FieldValue.serverTimestamp(),
+            'restoredAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true))
+          .timeout(_firestoreTimeout);
 
       return null;
+    } on TimeoutException {
+      return 'Operation impossible. Verifiez Firebase, Internet ou relancez l application.';
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
         return 'Cet email existe deja dans Firebase Authentication. Connectez-vous avec son mot de passe ou supprimez aussi le compte dans Authentication.';
@@ -97,10 +103,12 @@ class AuthController {
     String displayName = '',
   }) async {
     try {
-      final cred = await _auth.createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password.trim(),
-      );
+      final cred = await _auth
+          .createUserWithEmailAndPassword(
+            email: email.trim(),
+            password: password.trim(),
+          )
+          .timeout(_authTimeout);
       final cleanedDisplayName = displayName.trim();
       if (cleanedDisplayName.isNotEmpty) {
         await cred.user!.updateDisplayName(cleanedDisplayName);
@@ -114,12 +122,18 @@ class AuthController {
         role: normalizeRole(role),
       );
 
-      await _firestore.collection('users').doc(userProfile.uid).set({
-        ...userProfile.toMap(),
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+      await _firestore
+          .collection('users')
+          .doc(userProfile.uid)
+          .set({
+            ...userProfile.toMap(),
+            'createdAt': FieldValue.serverTimestamp(),
+          })
+          .timeout(_firestoreTimeout);
 
       return null;
+    } on TimeoutException {
+      return 'Operation impossible. Verifiez Firebase, Internet ou relancez l application.';
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         return restoreProfileForExistingAuthUser(
@@ -147,13 +161,29 @@ class AuthController {
   }
 
   Future<UserModel?> getUserProfile(String uid) async {
-    final doc = await _firestore.collection('users').doc(uid).get();
+    final doc = await _firestore
+        .collection('users')
+        .doc(uid)
+        .get()
+        .timeout(_firestoreTimeout);
 
     if (!doc.exists || doc.data() == null) {
       return null;
     }
 
     return UserModel.fromMap(doc.data()!, doc.id);
+  }
+
+  Future<UserCredential> _signIn({
+    required String email,
+    required String password,
+  }) {
+    return _auth
+        .signInWithEmailAndPassword(
+          email: email.trim(),
+          password: password.trim(),
+        )
+        .timeout(_authTimeout);
   }
 
   Future<bool> currentUserHasRole(String role) async {

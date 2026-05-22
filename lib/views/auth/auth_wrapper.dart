@@ -9,13 +9,28 @@ import 'login_view.dart';
 import '../organizer/organizer_home.dart';
 import '../user/user_home.dart';
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final authController = AuthController();
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
 
+class _AuthWrapperState extends State<AuthWrapper> {
+  final AuthController authController = AuthController();
+  String? _profileUid;
+  Future<UserModel?>? _profileFuture;
+
+  Future<UserModel?> _getProfileFuture(String uid) {
+    if (_profileUid != uid || _profileFuture == null) {
+      _profileUid = uid;
+      _profileFuture = authController.getUserProfile(uid);
+    }
+    return _profileFuture!;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: authController.authStateChanges(),
       builder: (context, snapshot) {
@@ -34,7 +49,7 @@ class AuthWrapper extends StatelessWidget {
         final user = snapshot.data!;
 
         return FutureBuilder<UserModel?>(
-          future: authController.getUserProfile(user.uid),
+          future: _getProfileFuture(user.uid),
           builder: (context, userSnap) {
             if (userSnap.connectionState == ConnectionState.waiting) {
               return const _AuthStateView.loading();
@@ -78,10 +93,10 @@ class AuthWrapper extends StatelessWidget {
             }
 
             if (profile.role == AuthController.organizerRole) {
-              return const OrganizerHome();
+              return OrganizerHome(profile: profile);
             }
 
-            return const UserHome();
+            return UserHome(profile: profile);
           },
         );
       },

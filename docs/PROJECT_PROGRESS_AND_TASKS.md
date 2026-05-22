@@ -201,14 +201,14 @@ Toutes les views existantes ont une interface coherente et l'application fonctio
 | OrganizerHome | [x] Termine | `organizer_home.dart` | Affiche les evenements de l'organisateur, permet creation, deconnexion et ouverture du detail avec avis. |
 | UserHome | [x] Termine | `user_home.dart` | Affiche les evenements a venir avec filtres, calendrier, reservations, navigation detail et etats propres. |
 | Modele Event | [x] Termine | `event_model.dart` | Champs principaux conserves, `imageUrl`, `isActive`, `updatedAt` et getters d'affichage ajoutes. |
-| Creation evenement | [x] Termine | `create_event_view.dart`, `event_controller.dart`, `place_picker_view.dart` | Creation et modification Firestore avec date, categorie, image, places, prix et selection obligatoire d'un lieu officiel sur carte. |
+| Creation evenement | [x] Termine | `create_event_view.dart`, `event_controller.dart`, `place_picker_view.dart` | Creation Firestore avec date, places, prix et selection obligatoire d'un lieu officiel sur carte. |
 | Liste des evenements | [x] Termine | `user_home.dart`, `event_controller.dart`, `event_card.dart` | Les evenements a venir sont affiches dans l'espace utilisateur avec `EventCard`. |
 | Details evenement | [x] Termine | `event_detail_view.dart`, `user_home.dart` | Page detail accessible avec infos, carte du lieu, ouverture Google Maps, reservation et avis. |
 | Reservations | [x] Termine | `reservation_model.dart`, `reservation_controller.dart`, `booking_view.dart`, `my_reservations_view.dart` | Reservation possible depuis le detail evenement et consultation des reservations utilisateur. |
 | Gestion des places disponibles | [x] Termine | `event_model.dart`, `reservation_controller.dart`, `booking_view.dart`, `event_detail_view.dart`, `event_card.dart` | Les places sont diminuees dans une transaction Firestore et les etats complet/indisponible sont bloques dans l'UI. |
 | Commentaires et avis | [x] Termine | `review_model.dart`, `review_controller.dart`, `event_detail_view.dart` | Les utilisateurs peuvent ajouter une note/commentaire et consulter les avis avec moyenne. |
 | Filtres | [x] Termine | `user_home.dart`, `event_controller.dart` | Filtres categorie et gratuit/payant ajoutes dans l'accueil utilisateur. |
-| Calendrier | [x] Termine | `calendar_view.dart`, `user_home.dart`, `event_controller.dart` | Vue calendrier mensuelle avec selection de mois, jours marques et liste des evenements du jour. |
+| Calendrier | [x] Termine | `calendar_view.dart`, `user_home.dart`, `event_controller.dart` | Vue calendrier simple avec selection de date et liste des evenements du jour. |
 | Securite Firestore | [ ] Non commence | Firebase Console | Les regles ne sont pas documentees dans le projet. |
 | Tests adaptes | [x] Termine | `test/widget_test.dart` | Le test compteur par defaut est remplace par des tests de modeles utiles. |
 | Design global | [x] Termine | `lib/theme/app_theme.dart`, `lib/widgets/`, views existantes | Theme global et widgets UI communs crees, puis appliques aux pages existantes. |
@@ -1636,11 +1636,6 @@ Test :
 Resultat obtenu :
 Les nouveaux ecrans sont harmonises, les messages et icones sont plus coherents, les permissions GPS inutiles sont retirees et les etats vides restent propres.
 
-Ajouts avances :
-- Gestion des evenements organisateur : modifier et supprimer uniquement ses propres evenements.
-- Paiement simule pour les reservations payantes avec confirmation email simulee.
-- Calendrier mensuel avec choix du mois, jours marques et ouverture du detail evenement.
-
 ### Tâche 25 — Tests et correction finale
 
 Statut : [x] Termine
@@ -2466,7 +2461,7 @@ Preparer le rendu.
 Taches :
 - Preparer donnees demo.
 - Capturer ecrans.
-- Generer APK si demande.
+- Generer APK.
 
 Fichiers touches :
 - Documentation ou fichiers necessaires.

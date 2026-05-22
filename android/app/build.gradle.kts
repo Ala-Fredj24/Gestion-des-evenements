@@ -42,7 +42,3 @@ android {
 flutter {
     source = "../.."
 }
-dependencies {
-  // Import the Firebase BoM
-  implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
-}

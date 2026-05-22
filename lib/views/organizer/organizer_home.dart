@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/event_controller.dart';
 import '../../models/event_model.dart';
+import '../../models/user_model.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/event_card.dart';
@@ -11,7 +12,9 @@ import '../home/event_detail_view.dart';
 import 'create_event_view.dart';
 
 class OrganizerHome extends StatefulWidget {
-  const OrganizerHome({super.key});
+  final UserModel profile;
+
+  const OrganizerHome({super.key, required this.profile});
 
   @override
   State<OrganizerHome> createState() => _OrganizerHomeState();
@@ -67,7 +70,9 @@ class _OrganizerHomeState extends State<OrganizerHome> {
   @override
   Widget build(BuildContext context) {
     final firebaseUser = authController.user;
-    final displayName = firebaseUser?.displayName?.trim();
+    final profileName = widget.profile.displayName.trim();
+    final firebaseName = firebaseUser?.displayName?.trim();
+    final displayName = profileName.isNotEmpty ? profileName : firebaseName;
 
     return AppScaffold(
       title: displayName != null && displayName.isNotEmpty
